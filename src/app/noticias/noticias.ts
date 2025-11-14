@@ -13,6 +13,7 @@ interface Noticia {
   imagen_url?: string;
   imagen_path?: string;
   categoria?: string;
+  autor?: string;
 }
 
 @Component({
@@ -22,35 +23,82 @@ interface Noticia {
   template: `
     <div class="min-h-screen bg-gray-50">
       <!-- Header -->
-      <header class="bg-white shadow-lg border-b border-gray-200 sticky top-0 z-10">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-              <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <header class="bg-gradient-to-r from-blue-600 to-blue-800 shadow-2xl border-b border-blue-900">
+        <div class="w-full px-4 sm:px-6 lg:px-8 py-6">
+          <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+            <!-- Logo and Title Section -->
+            <div class="flex items-center space-x-4">
+              <div class="w-16 h-16 bg-white rounded-xl flex items-center justify-center shadow-lg transform hover:scale-105 transition-transform">
+                <svg class="w-10 h-10 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
                 </svg>
               </div>
-              <h1 class="text-2xl md:text-3xl font-bold text-gray-900">Portal de Noticias</h1>
-              <span class="hidden md:inline-block text-sm text-gray-500">Tu fuente de información confiable</span>
+              <div>
+                <h1 class="text-3xl md:text-4xl font-extrabold text-white tracking-tight">
+                  Portal de Noticias
+                </h1>
+                <p class="text-blue-100 text-sm md:text-base mt-1">
+                  Tu fuente de información confiable 📰
+                </p>
+              </div>
             </div>
-            
-            <button
-              (click)="cargarNoticias()"
-              [disabled]="cargando"
-              class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <svg *ngIf="cargando" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+
+            <!-- Search Bar - Desktop -->
+            <div class="hidden md:block flex-1 max-w-2xl">
+              <div class="relative">
+                <input
+                  type="text"
+                  [(ngModel)]="terminoBusqueda"
+                  (ngModelChange)="buscarNoticias()"
+                  placeholder="Buscar noticias, autor, contenido..."
+                  class="w-full px-5 py-3 pl-12 pr-12 text-sm bg-white border-2 border-white rounded-full focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-blue-300 shadow-lg transition-all placeholder-gray-400"
+                />
+                <svg class="absolute left-4 top-3.5 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+                <button
+                  *ngIf="terminoBusqueda"
+                  (click)="limpiarBusqueda()"
+                  class="absolute right-4 top-3.5 text-gray-400 hover:text-gray-600 transition-colors"
+                  title="Limpiar búsqueda"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Search Bar - Mobile -->
+          <div class="mt-4 md:hidden">
+            <div class="relative">
+              <input
+                type="text"
+                [(ngModel)]="terminoBusqueda"
+                (ngModelChange)="buscarNoticias()"
+                placeholder="Buscar noticias, autor, contenido..."
+                class="w-full px-5 py-3 pl-12 pr-12 text-sm bg-white border-2 border-white rounded-full focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-blue-300 shadow-lg transition-all placeholder-gray-400"
+              />
+              <svg class="absolute left-4 top-3.5 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
               </svg>
-              {{ cargando ? 'Cargando...' : 'Actualizar' }}
-            </button>
+              <button
+                *ngIf="terminoBusqueda"
+                (click)="limpiarBusqueda()"
+                class="absolute right-4 top-3.5 text-gray-400 hover:text-gray-600 transition-colors"
+                title="Limpiar búsqueda"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
       </header>
 
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div class="w-full px-4 sm:px-6 lg:px-8 py-6">
         <div class="flex flex-col lg:flex-row gap-6">
           <!-- Sidebar Filters -->
           <aside class="w-full lg:w-64 flex-shrink-0">
@@ -194,15 +242,6 @@ interface Noticia {
                 </p>
               </div>
 
-              <!-- Botón Limpiar Filtros -->
-              <button
-                *ngIf="hayFiltrosActivos()"
-                (click)="limpiarFiltros()"
-                class="w-full mt-4 px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-md hover:bg-blue-100 transition-colors"
-              >
-                Limpiar filtros
-              </button>
-
               <!-- Lo Más Popular -->
               <div class="mt-8 pt-6 border-t border-gray-200">
                 <h3 class="text-sm font-bold text-gray-900 mb-3 flex items-center">
@@ -225,15 +264,19 @@ interface Noticia {
                 <h3 class="text-sm font-bold text-gray-900 mb-3 flex items-center">
                   👤 Autores Destacados
                 </h3>
-                <div class="space-y-3">
-                  <a 
-                    *ngFor="let noticia of noticiasAutores"
-                    [href]="noticia.link"
-                    target="_blank"
-                    class="block text-xs text-gray-600 hover:text-blue-600 line-clamp-2 transition-colors"
+                <div class="space-y-2">
+                  <button
+                    *ngFor="let autor of autoresDestacados"
+                    (click)="filtrarPorAutor(autor)"
+                    [class.bg-blue-50]="autorSeleccionado === autor"
+                    [class.text-blue-600]="autorSeleccionado === autor"
+                    class="w-full text-left px-3 py-2 rounded-md text-xs text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors flex items-center justify-between group"
                   >
-                    {{ noticia.titulo }}
-                  </a>
+                    <span class="font-medium">{{ autor }}</span>
+                    <span class="text-xs text-gray-400 group-hover:text-blue-500">
+                      {{ contarNoticiasPorAutor(autor) }}
+                    </span>
+                  </button>
                 </div>
               </div>
             </div>
@@ -527,6 +570,7 @@ export class PortalNoticiasComponent implements OnInit {
   noticiaDestacada: Noticia | null = null;
   noticiasPopulares: Noticia[] = [];
   noticiasAutores: Noticia[] = [];
+  autoresDestacados: string[] = [];
   
   // Filtros
   fuentes: string[] = [];
@@ -538,6 +582,8 @@ export class PortalNoticiasComponent implements OnInit {
   paisSeleccionado: string = '';
   ordenSeleccionado: string = 'recientes';
   tipoContenido: string = 'todos';
+  terminoBusqueda: string = '';
+  autorSeleccionado: string = '';
   
   // Paginación
   paginaActual: number = 1;
@@ -567,22 +613,48 @@ export class PortalNoticiasComponent implements OnInit {
     this.error = '';
     
     try {
-      const { data, error } = await this.supabase
-        .from('noticias')
-        .select('*')
-        .order('fecha', { ascending: false });
+      let todasLasNoticias: Noticia[] = [];
+      let desde = 0;
+      const limite = 1000; // Cargar en lotes de 1000
+      let hayMasRegistros = true;
 
-      if (error) {
-        throw error;
+      console.log('🔄 Iniciando carga de noticias desde Supabase...');
+
+      // Cargar todas las noticias en lotes
+      while (hayMasRegistros) {
+        const { data, error } = await this.supabase
+          .from('noticias')
+          .select('*')
+          .order('fecha', { ascending: false })
+          .range(desde, desde + limite - 1);
+
+        if (error) {
+          throw error;
+        }
+
+        if (data && data.length > 0) {
+          todasLasNoticias = [...todasLasNoticias, ...data];
+          console.log(`📦 Cargado lote: ${data.length} noticias (Total: ${todasLasNoticias.length})`);
+          desde += limite;
+          
+          // Si obtuvimos menos registros que el límite, ya no hay más
+          if (data.length < limite) {
+            hayMasRegistros = false;
+          }
+        } else {
+          hayMasRegistros = false;
+        }
       }
 
-      this.noticias = data || [];
+      this.noticias = todasLasNoticias;
       this.extraerDatosUnicos();
       this.aplicarFiltros();
       
+      console.log(`✅ ¡Carga completa! Total de noticias: ${this.noticias.length}`);
+      
     } catch (error: any) {
       this.error = error.message || 'Error desconocido al cargar las noticias';
-      console.error('Error cargando noticias:', error);
+      console.error('❌ Error cargando noticias:', error);
     } finally {
       this.cargando = false;
     }
@@ -610,6 +682,14 @@ export class PortalNoticiasComponent implements OnInit {
       ];
     }
     
+    // Extraer autores únicos
+    const autoresUnicos = new Set(
+      this.noticias
+        .map(noticia => noticia.autor || noticia.fuente) // Si no hay autor, usar la fuente
+        .filter((autor): autor is string => autor !== undefined && autor !== null && autor.trim() !== '')
+    );
+    this.autoresDestacados = Array.from(autoresUnicos).sort().slice(0, 8); // Mostrar solo los primeros 8 autores
+    
     // Obtener noticias populares (primeras 5 como ejemplo)
     this.noticiasPopulares = this.noticias.slice(0, 5);
     
@@ -625,6 +705,30 @@ export class PortalNoticiasComponent implements OnInit {
 
   aplicarFiltros() {
     let noticiasFiltradas = [...this.noticias];
+
+    // Filtrar por búsqueda
+    if (this.terminoBusqueda && this.terminoBusqueda.trim() !== '') {
+      const termino = this.terminoBusqueda.toLowerCase().trim();
+      noticiasFiltradas = noticiasFiltradas.filter(noticia => {
+        const titulo = noticia.titulo.toLowerCase();
+        const contenido = noticia.contenido.toLowerCase();
+        const autor = (noticia.autor || noticia.fuente).toLowerCase();
+        const fuente = noticia.fuente.toLowerCase();
+        
+        return titulo.includes(termino) || 
+               contenido.includes(termino) || 
+               autor.includes(termino) ||
+               fuente.includes(termino);
+      });
+    }
+
+    // Filtrar por autor
+    if (this.autorSeleccionado) {
+      noticiasFiltradas = noticiasFiltradas.filter(noticia => {
+        const autor = noticia.autor || noticia.fuente;
+        return autor === this.autorSeleccionado;
+      });
+    }
 
     // Filtrar por categoría
     if (this.categoriaSeleccionada) {
@@ -715,7 +819,9 @@ export class PortalNoticiasComponent implements OnInit {
            this.categoriaSeleccionada !== '' ||
            this.paisSeleccionado !== '' ||
            this.tipoContenido !== 'todos' ||
-           this.ordenSeleccionado !== 'recientes';
+           this.ordenSeleccionado !== 'recientes' ||
+           this.terminoBusqueda !== '' ||
+           this.autorSeleccionado !== '';
   }
 
   limpiarFiltros() {
@@ -724,6 +830,8 @@ export class PortalNoticiasComponent implements OnInit {
     this.paisSeleccionado = '';
     this.tipoContenido = 'todos';
     this.ordenSeleccionado = 'recientes';
+    this.terminoBusqueda = '';
+    this.autorSeleccionado = '';
     this.paginaActual = 1;
     this.aplicarFiltros();
   }
@@ -809,5 +917,36 @@ export class PortalNoticiasComponent implements OnInit {
 
   onImageError(event: any) {
     event.target.style.display = 'none';
+  }
+
+  // Métodos de búsqueda
+  buscarNoticias() {
+    this.paginaActual = 1;
+    this.aplicarFiltros();
+  }
+
+  limpiarBusqueda() {
+    this.terminoBusqueda = '';
+    this.buscarNoticias();
+  }
+
+  // Métodos de autor
+  filtrarPorAutor(autor: string) {
+    if (this.autorSeleccionado === autor) {
+      // Si ya está seleccionado, lo deseleccionamos
+      this.autorSeleccionado = '';
+    } else {
+      this.autorSeleccionado = autor;
+    }
+    this.paginaActual = 1;
+    this.aplicarFiltros();
+    this.scrollToTop();
+  }
+
+  contarNoticiasPorAutor(autor: string): number {
+    return this.noticias.filter(noticia => {
+      const autorNoticia = noticia.autor || noticia.fuente;
+      return autorNoticia === autor;
+    }).length;
   }
 }
