@@ -29,7 +29,7 @@ interface Noticia {
     <div class="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-gray-100">
       <!-- Header Superior -->
       <header class="bg-white shadow-xl sticky top-0 z-50 border-b-4 border-blue-600">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="w-full px-4 sm:px-6 lg:px-8 max-w-[1920px] mx-auto">
           <!-- Top Bar -->
           <div class="flex items-center justify-between py-4">
             <div class="flex items-center space-x-4">
@@ -118,8 +118,8 @@ interface Noticia {
       </header>
 
       <!-- Main Content -->
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div class="flex flex-col lg:flex-row gap-8">
+      <div class="w-full px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex flex-col lg:flex-row gap-8 max-w-[1920px] mx-auto">
           <!-- Sidebar Filters -->
           <aside class="lg:w-80 space-y-6">
             <!-- Filters Card -->
@@ -331,7 +331,7 @@ interface Noticia {
             </div>
 
             <!-- News Grid -->
-            <div *ngIf="!cargando && noticiasFiltradas.length > 0" class="grid gap-6 md:grid-cols-2">
+            <div *ngIf="!cargando && noticiasFiltradas.length > 0" class="grid gap-6 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
               <article 
                 *ngFor="let noticia of noticiasFiltradas" 
                 class="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 transform hover:-translate-y-1"
@@ -507,15 +507,18 @@ export class PortalNoticiasComponent implements OnInit {
     this.error = '';
     
     try {
-      const { data, error } = await this.supabase
+      // Cargar TODAS las noticias sin límite
+      const { data, error, count } = await this.supabase
         .from('noticias')
-        .select('*')
+        .select('*', { count: 'exact' })
         .order('fecha', { ascending: false });
 
       if (error) {
         throw error;
       }
 
+      console.log(`Cargadas ${data?.length} noticias de ${count} totales`);
+      
       this.noticias = data || [];
       this.noticiasFiltradas = [...this.noticias];
       this.extraerDatos();
@@ -535,9 +538,31 @@ export class PortalNoticiasComponent implements OnInit {
     const fuentesUnicas = new Set(this.noticias.map(n => n.fuente).filter((f): f is string => Boolean(f)));
     this.fuentes = Array.from(fuentesUnicas).sort();
     
-    // Extraer categorías únicas
+    // Extraer categorías únicas y agregar categorías faltantes si no existen
     const categoriasUnicas = new Set(this.noticias.map(n => n.categoria).filter((c): c is string => Boolean(c)));
-    this.categorias = Array.from(categoriasUnicas).sort();
+    
+    // Categorías completas basadas en tu código Python
+    const categoriasCompletas = [
+      'delincuencia',
+      'electrodomésticos',
+      'tecnología',
+      'ciencia',
+      'medio ambiente',
+      'negocios',
+      'educación',
+      'turismo',
+      'entretenimiento',
+      'política',
+      'economía',
+      'incidentes',
+      'deportes',
+      'cultura',
+      'salud'
+    ];
+    
+    // Combinar categorías existentes con las completas
+    const todasCategorias = new Set([...categoriasUnicas, ...categoriasCompletas]);
+    this.categorias = Array.from(todasCategorias).sort();
     
     // Extraer países únicos
     const paisesUnicos = new Set(this.noticias.map(n => n.pais).filter((p): p is string => Boolean(p)));
