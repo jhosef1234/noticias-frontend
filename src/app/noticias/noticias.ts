@@ -507,19 +507,39 @@ export class PortalNoticiasComponent implements OnInit {
     this.error = '';
     
     try {
-      // Cargar TODAS las noticias sin límite
-      const { data, error, count } = await this.supabase
+      // Primero obtener el conteo total
+      const { count } = await this.supabase
         .from('noticias')
-        .select('*', { count: 'exact' })
-        .order('fecha', { ascending: false });
+        .select('*', { count: 'exact', head: true });
 
-      if (error) {
-        throw error;
+      console.log(`Total de noticias en DB: ${count}`);
+
+      // Cargar todas las noticias en lotes
+      const pageSize = 1000;
+      const totalPages = Math.ceil((count || 0) / pageSize);
+      let todasLasNoticias: Noticia[] = [];
+
+      for (let page = 0; page < totalPages; page++) {
+        const { data, error } = await this.supabase
+          .from('noticias')
+          .select('*')
+          .order('fecha', { ascending: false })
+          .range(page * pageSize, (page + 1) * pageSize - 1);
+
+        if (error) {
+          throw error;
+        }
+
+        if (data) {
+          todasLasNoticias = [...todasLasNoticias, ...data];
+        }
+
+        console.log(`Cargado lote ${page + 1}/${totalPages}: ${data?.length} noticias`);
       }
 
-      console.log(`Cargadas ${data?.length} noticias de ${count} totales`);
+      console.log(`✅ Total cargado: ${todasLasNoticias.length} noticias`);
       
-      this.noticias = data || [];
+      this.noticias = todasLasNoticias;
       this.noticiasFiltradas = [...this.noticias];
       this.extraerDatos();
       this.establecerNoticiaDestacada();
