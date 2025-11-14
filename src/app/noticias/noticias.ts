@@ -582,7 +582,7 @@ export class PortalNoticiasComponent implements OnInit {
     const categoriasUnicas = new Set(
       this.noticias
         .map(noticia => noticia.categoria)
-        .filter(cat => cat && cat.trim() !== '')
+        .filter((cat): cat is string => cat !== undefined && cat !== null && cat.trim() !== '')
     );
     this.categorias = Array.from(categoriasUnicas).sort();
     
