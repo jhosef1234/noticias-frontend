@@ -50,35 +50,6 @@ interface Noticia {
         </div>
       </header>
 
-      <!-- Categories Bar -->
-      <div class="bg-white border-b border-gray-200 shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div class="flex overflow-x-auto py-3 space-x-2 scrollbar-hide">
-            <button
-              (click)="seleccionarCategoria('')"
-              [class.bg-blue-600]="categoriaSeleccionada === ''"
-              [class.text-white]="categoriaSeleccionada === ''"
-              [class.bg-gray-100]="categoriaSeleccionada !== ''"
-              [class.text-gray-700]="categoriaSeleccionada !== ''"
-              class="px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors hover:bg-blue-500 hover:text-white"
-            >
-              Todas
-            </button>
-            <button
-              *ngFor="let categoria of categorias"
-              (click)="seleccionarCategoria(categoria)"
-              [class.bg-blue-600]="categoriaSeleccionada === categoria"
-              [class.text-white]="categoriaSeleccionada === categoria"
-              [class.bg-gray-100]="categoriaSeleccionada !== categoria"
-              [class.text-gray-700]="categoriaSeleccionada !== categoria"
-              class="px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors hover:bg-blue-500 hover:text-white"
-            >
-              {{ categoria }}
-            </button>
-          </div>
-        </div>
-      </div>
-
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div class="flex flex-col lg:flex-row gap-6">
           <!-- Sidebar Filters -->
@@ -103,6 +74,23 @@ interface Noticia {
                 >
                   <option value="recientes">Más Recientes</option>
                   <option value="antiguos">Más Antiguos</option>
+                </select>
+              </div>
+
+              <!-- Filtro por Categoría -->
+              <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  Categoría
+                </label>
+                <select
+                  [(ngModel)]="categoriaSeleccionada"
+                  (ngModelChange)="aplicarFiltros()"
+                  class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
+                >
+                  <option value="">Todas las categorías</option>
+                  <option *ngFor="let categoria of categorias" [value]="categoria">
+                    {{ categoria | titlecase }}
+                  </option>
                 </select>
               </div>
 
@@ -134,9 +122,18 @@ interface Noticia {
                   class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
                 >
                   <option value="">Todos los países</option>
-                  <option *ngFor="let pais of paises" [value]="pais">
-                    {{ pais }}
-                  </option>
+                  <option value="Perú">Perú</option>
+                  <option value="Argentina">Argentina</option>
+                  <option value="Chile">Chile</option>
+                  <option value="Colombia">Colombia</option>
+                  <option value="México">México</option>
+                  <option value="España">España</option>
+                  <option value="Estados Unidos">Estados Unidos</option>
+                  <option value="Brasil">Brasil</option>
+                  <option value="Ecuador">Ecuador</option>
+                  <option value="Venezuela">Venezuela</option>
+                  <option value="Uruguay">Uruguay</option>
+                  <option value="Bolivia">Bolivia</option>
                 </select>
               </div>
 
@@ -214,6 +211,23 @@ interface Noticia {
                 <div class="space-y-3">
                   <a 
                     *ngFor="let noticia of noticiasPopulares"
+                    [href]="noticia.link"
+                    target="_blank"
+                    class="block text-xs text-gray-600 hover:text-blue-600 line-clamp-2 transition-colors"
+                  >
+                    {{ noticia.titulo }}
+                  </a>
+                </div>
+              </div>
+
+              <!-- Autores Destacados -->
+              <div class="mt-6 pt-6 border-t border-gray-200">
+                <h3 class="text-sm font-bold text-gray-900 mb-3 flex items-center">
+                  👤 Autores Destacados
+                </h3>
+                <div class="space-y-3">
+                  <a 
+                    *ngFor="let noticia of noticiasAutores"
                     [href]="noticia.link"
                     target="_blank"
                     class="block text-xs text-gray-600 hover:text-blue-600 line-clamp-2 transition-colors"
@@ -387,8 +401,9 @@ interface Noticia {
                 <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
                   <!-- Page Info -->
                   <div class="text-sm text-gray-600">
-                    Mostrando {{ ((paginaActual - 1) * noticiasPorPagina) + 1 }} - 
-                    {{ Math.min(paginaActual * noticiasPorPagina, noticiasFiltradas.length) }} 
+                    Mostrando 
+                    {{ paginaActual === 1 ? 1 : ((paginaActual - 1) * noticiasPorPagina) }} - 
+                    {{ Math.min(paginaActual === 1 ? noticiasPorPagina : ((paginaActual - 1) * noticiasPorPagina + noticiasPaginadas.length), noticiasFiltradas.length) }} 
                     de {{ noticiasFiltradas.length }} noticias
                   </div>
 
@@ -511,11 +526,11 @@ export class PortalNoticiasComponent implements OnInit {
   noticiasPaginadas: Noticia[] = [];
   noticiaDestacada: Noticia | null = null;
   noticiasPopulares: Noticia[] = [];
+  noticiasAutores: Noticia[] = [];
   
   // Filtros
   fuentes: string[] = [];
   categorias: string[] = [];
-  paises: string[] = [];
   
   // Selecciones de filtros
   fuenteSeleccionada: string = '';
@@ -595,12 +610,11 @@ export class PortalNoticiasComponent implements OnInit {
       ];
     }
     
-    // Extraer países (si existe el campo, sino usar valores por defecto)
-    // Esto es un ejemplo, ajusta según tu estructura de datos
-    this.paises = ['Todos los países'];
-    
     // Obtener noticias populares (primeras 5 como ejemplo)
     this.noticiasPopulares = this.noticias.slice(0, 5);
+    
+    // Obtener noticias de autores destacados (noticias 5-10 como ejemplo)
+    this.noticiasAutores = this.noticias.slice(5, 10);
   }
 
   seleccionarCategoria(categoria: string) {
@@ -672,6 +686,7 @@ export class PortalNoticiasComponent implements OnInit {
   }
 
   private calcularPaginacion() {
+    // Calcular total de páginas basado en TODAS las noticias filtradas
     this.totalPaginas = Math.ceil(this.noticiasFiltradas.length / this.noticiasPorPagina);
     
     // Asegurar que la página actual no exceda el total
@@ -680,11 +695,19 @@ export class PortalNoticiasComponent implements OnInit {
     }
     
     // Obtener noticias de la página actual
-    // Excluir la noticia destacada de la paginación
-    const noticiasParaPaginar = this.noticiasFiltradas.slice(1);
+    // INCLUIR la noticia destacada en la paginación
     const inicio = (this.paginaActual - 1) * this.noticiasPorPagina;
     const fin = inicio + this.noticiasPorPagina;
-    this.noticiasPaginadas = noticiasParaPaginar.slice(inicio, fin);
+    
+    // En la primera página, excluimos la primera noticia porque se muestra como destacada
+    if (this.paginaActual === 1) {
+      this.noticiasPaginadas = this.noticiasFiltradas.slice(1, fin);
+    } else {
+      // En las demás páginas, ajustamos el índice considerando que saltamos una en la primera página
+      const inicioAjustado = inicio - 1;
+      const finAjustado = fin - 1;
+      this.noticiasPaginadas = this.noticiasFiltradas.slice(inicioAjustado, finAjustado);
+    }
   }
 
   hayFiltrosActivos(): boolean {
