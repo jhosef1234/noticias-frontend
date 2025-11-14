@@ -123,7 +123,7 @@ interface Noticia {
           <!-- Sidebar Filters -->
           <aside class="lg:w-80 space-y-6">
             <!-- Filters Card -->
-            <div class="bg-white rounded-2xl shadow-xl p-6 border border-gray-100 sticky top-24">
+            <div class="bg-white rounded-2xl shadow-xl p-6 border border-gray-100 sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto scrollbar-thin">
               <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
                 <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
@@ -202,52 +202,52 @@ interface Noticia {
               </div>
 
               <!-- Stats -->
-              <div class="pt-4 border-t border-gray-200">
+              <div class="pt-4 border-t border-gray-200 mb-6">
                 <div class="flex items-center justify-between text-sm">
                   <span class="text-gray-600 font-medium">Mostrando:</span>
                   <span class="font-bold text-blue-600">{{ noticiasFiltradas.length }} / {{ noticias.length }}</span>
                 </div>
               </div>
-            </div>
 
-            <!-- Lo Más Popular -->
-            <div class="bg-gradient-to-br from-orange-50 to-red-50 rounded-2xl shadow-xl p-6 border-2 border-orange-200">
-              <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
-                <span class="text-2xl mr-2">🔥</span>
-                Lo Más Popular
-              </h3>
-              <div class="space-y-3">
-                <div *ngFor="let noticia of noticiasPopulares; let i = index" 
-                     class="flex items-start space-x-3 p-3 bg-white rounded-lg hover:shadow-md transition-shadow cursor-pointer">
-                  <span class="flex-shrink-0 w-6 h-6 bg-gradient-to-br from-orange-500 to-red-500 text-white rounded-full flex items-center justify-center text-xs font-bold">
-                    {{ i + 1 }}
-                  </span>
-                  <div class="flex-1 min-w-0">
-                    <a [href]="noticia.link" target="_blank" class="text-sm font-semibold text-gray-900 hover:text-blue-600 line-clamp-2">
-                      {{ noticia.titulo }}
-                    </a>
-                    <p class="text-xs text-gray-500 mt-1">{{ noticia.fuente }}</p>
+              <!-- Lo Más Popular -->
+              <div class="pt-6 border-t-2 border-orange-200">
+                <h4 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
+                  <span class="text-xl mr-2">🔥</span>
+                  Lo Más Popular
+                </h4>
+                <div class="space-y-3">
+                  <div *ngFor="let noticia of noticiasPopulares; let i = index" 
+                       class="flex items-start space-x-3 p-3 bg-gradient-to-r from-orange-50 to-red-50 rounded-lg hover:shadow-md transition-shadow cursor-pointer">
+                    <span class="flex-shrink-0 w-6 h-6 bg-gradient-to-br from-orange-500 to-red-500 text-white rounded-full flex items-center justify-center text-xs font-bold">
+                      {{ i + 1 }}
+                    </span>
+                    <div class="flex-1 min-w-0">
+                      <a [href]="noticia.link" target="_blank" class="text-sm font-semibold text-gray-900 hover:text-blue-600 line-clamp-2">
+                        {{ noticia.titulo }}
+                      </a>
+                      <p class="text-xs text-gray-500 mt-1">{{ noticia.fuente }}</p>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            <!-- Autores Destacados -->
-            <div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl shadow-xl p-6 border-2 border-purple-200" *ngIf="autoresDestacados.length > 0">
-              <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
-                <svg class="w-5 h-5 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                </svg>
-                Autores Destacados
-              </h3>
-              <div class="space-y-2">
-                <button
-                  *ngFor="let autor of autoresDestacados"
-                  (click)="filtrarPorAutor(autor)"
-                  class="w-full text-left px-4 py-2 bg-white rounded-lg hover:shadow-md transition-all text-sm font-medium text-gray-700 hover:text-purple-600"
-                >
-                  {{ autor }}
-                </button>
+              <!-- Autores Destacados -->
+              <div class="pt-6 border-t-2 border-purple-200 mt-6" *ngIf="autoresDestacados.length > 0">
+                <h4 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
+                  <svg class="w-5 h-5 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                  </svg>
+                  Autores Destacados
+                </h4>
+                <div class="space-y-2">
+                  <button
+                    *ngFor="let autor of autoresDestacados"
+                    (click)="filtrarPorAutor(autor)"
+                    class="w-full text-left px-4 py-2 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg hover:shadow-md transition-all text-sm font-medium text-gray-700 hover:text-purple-600"
+                  >
+                    {{ autor }}
+                  </button>
+                </div>
               </div>
             </div>
           </aside>
@@ -437,6 +437,29 @@ interface Noticia {
     .scrollbar-hide {
       -ms-overflow-style: none;
       scrollbar-width: none;
+    }
+
+    .scrollbar-thin::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .scrollbar-thin::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 10px;
+    }
+
+    .scrollbar-thin::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 10px;
+    }
+
+    .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
+    .scrollbar-thin {
+      scrollbar-width: thin;
+      scrollbar-color: #cbd5e1 #f1f1f1;
     }
   `]
 })
