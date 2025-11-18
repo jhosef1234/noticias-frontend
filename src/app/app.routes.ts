@@ -4,7 +4,7 @@ import { AuthGuard } from './auth/auth.guard';
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: 'login',
+    redirectTo: 'noticias',
     pathMatch: 'full'
   },
   {
@@ -21,10 +21,10 @@ export const routes: Routes = [
     path: 'noticias',
     loadComponent: () =>
       import('./noticias/noticias').then(m => m.PortalNoticiasComponent),
-    canActivate: [AuthGuard] // ✅ Protegida - solo usuarios autenticados
+    // ✅ Accesible sin autenticación - el login se solicita solo al hacer click en "Leer más"
   },
   {
     path: '**',
-    redirectTo: 'login'
+    redirectTo: 'noticias'
   }
 ];

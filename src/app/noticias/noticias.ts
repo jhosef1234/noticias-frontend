@@ -1,7 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { AuthService } from '../auth/auth.service';
+import { Subscription } from 'rxjs';
+import Swal from 'sweetalert2';
 
 interface Noticia {
   id: number;
@@ -14,6 +18,9 @@ interface Noticia {
   imagen_path?: string;
   categoria?: string;
   autor?: string;
+  ciudad?: string;
+  departamento?: string;
+  pais?: string;
 }
 
 @Component({
@@ -25,8 +32,9 @@ interface Noticia {
       <!-- Header -->
       <header class="bg-gradient-to-r from-blue-600 to-blue-800 shadow-2xl border-b border-blue-900">
         <div class="w-full px-4 sm:px-6 lg:px-8 py-6">
-          <div class="flex flex-col md:flex-row items-center justify-between gap-4">
-            <!-- Logo and Title Section -->
+          <!-- Desktop Layout -->
+          <div class="hidden md:grid md:grid-cols-3 items-center gap-4">
+            <!-- Logo and Title Section - Left -->
             <div class="flex items-center space-x-4">
               <div class="w-16 h-16 bg-white rounded-xl flex items-center justify-center shadow-lg transform hover:scale-105 transition-transform">
                 <svg class="w-10 h-10 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -43,21 +51,25 @@ interface Noticia {
               </div>
             </div>
 
-            <!-- Search Bar - Desktop -->
-            <div class="hidden md:block flex-1 max-w-2xl">
-              <div class="relative">
+            <!-- Search Bar - Center -->
+            <div class="flex justify-center">
+              <div class="relative w-full max-w-xl">
                 <input
                   type="text"
                   [(ngModel)]="terminoBusqueda"
                   (ngModelChange)="buscarNoticias()"
-                  placeholder="Buscar noticias, autor, contenido..."
+                  (click)="verificarBusqueda($event)"
+                  [readonly]="!estaAutenticado"
+                  [placeholder]="estaAutenticado ? 'Buscar noticias, autor, contenido...' : 'Inicia sesión para buscar'"
+                  [class.opacity-50]="!estaAutenticado"
+                  [class.cursor-pointer]="!estaAutenticado"
                   class="w-full px-5 py-3 pl-12 pr-12 text-sm bg-white border-2 border-white rounded-full focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-blue-300 shadow-lg transition-all placeholder-gray-400"
                 />
                 <svg class="absolute left-4 top-3.5 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                 </svg>
                 <button
-                  *ngIf="terminoBusqueda"
+                  *ngIf="terminoBusqueda && estaAutenticado"
                   (click)="limpiarBusqueda()"
                   class="absolute right-4 top-3.5 text-gray-400 hover:text-gray-600 transition-colors"
                   title="Limpiar búsqueda"
@@ -68,31 +80,107 @@ interface Noticia {
                 </button>
               </div>
             </div>
-          </div>
-
-          <!-- Search Bar - Mobile -->
-          <div class="mt-4 md:hidden">
-            <div class="relative">
-              <input
-                type="text"
-                [(ngModel)]="terminoBusqueda"
-                (ngModelChange)="buscarNoticias()"
-                placeholder="Buscar noticias, autor, contenido..."
-                class="w-full px-5 py-3 pl-12 pr-12 text-sm bg-white border-2 border-white rounded-full focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-blue-300 shadow-lg transition-all placeholder-gray-400"
-              />
-              <svg class="absolute left-4 top-3.5 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-              </svg>
+            
+            <!-- Botón de Login/Logout - Right -->
+            <div class="flex justify-end">
               <button
-                *ngIf="terminoBusqueda"
-                (click)="limpiarBusqueda()"
-                class="absolute right-4 top-3.5 text-gray-400 hover:text-gray-600 transition-colors"
-                title="Limpiar búsqueda"
+                *ngIf="!estaAutenticado"
+                (click)="irALogin()"
+                class="px-4 py-2 bg-white text-blue-600 text-sm font-semibold rounded-full hover:bg-blue-50 transition-colors shadow-lg flex items-center gap-2 whitespace-nowrap"
               >
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
                 </svg>
+                Iniciar Sesión
               </button>
+              
+              <button
+                *ngIf="estaAutenticado"
+                (click)="cerrarSesion()"
+                class="px-4 py-2 bg-white text-red-600 text-sm font-semibold rounded-full hover:bg-red-50 transition-colors shadow-lg flex items-center gap-2 whitespace-nowrap"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                </svg>
+                Cerrar Sesión
+              </button>
+            </div>
+          </div>
+
+          <!-- Mobile Layout -->
+          <div class="md:hidden">
+            <div class="flex flex-col items-center gap-4">
+              <!-- Logo and Title Section -->
+              <div class="flex items-center space-x-4">
+                <div class="w-16 h-16 bg-white rounded-xl flex items-center justify-center shadow-lg transform hover:scale-105 transition-transform">
+                  <svg class="w-10 h-10 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
+                  </svg>
+                </div>
+                <div>
+                  <h1 class="text-3xl font-extrabold text-white tracking-tight">
+                    Portal de Noticias
+                  </h1>
+                  <p class="text-blue-100 text-sm mt-1">
+                    Tu fuente de información confiable 📰
+                  </p>
+                </div>
+              </div>
+
+              <!-- Search Bar and Auth Button - Mobile -->
+              <div class="mt-4 w-full space-y-3">
+                <div class="relative">
+                  <input
+                    type="text"
+                    [(ngModel)]="terminoBusqueda"
+                    (ngModelChange)="buscarNoticias()"
+                    (click)="verificarBusqueda($event)"
+                    [readonly]="!estaAutenticado"
+                    [placeholder]="estaAutenticado ? 'Buscar noticias, autor, contenido...' : 'Inicia sesión para buscar'"
+                    [class.opacity-50]="!estaAutenticado"
+                    [class.cursor-pointer]="!estaAutenticado"
+                    class="w-full px-5 py-3 pl-12 pr-12 text-sm bg-white border-2 border-white rounded-full focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-blue-300 shadow-lg transition-all placeholder-gray-400"
+                  />
+                  <svg class="absolute left-4 top-3.5 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                  </svg>
+                  <button
+                    *ngIf="terminoBusqueda && estaAutenticado"
+                    (click)="limpiarBusqueda()"
+                    class="absolute right-4 top-3.5 text-gray-400 hover:text-gray-600 transition-colors"
+                    title="Limpiar búsqueda"
+                  >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                  </button>
+                </div>
+                
+                <!-- Botón de Login/Logout - Mobile -->
+                <div class="flex justify-end">
+                  <button
+                    *ngIf="!estaAutenticado"
+                    (click)="irALogin()"
+                    class="px-4 py-2 bg-white text-blue-600 text-sm font-semibold rounded-full hover:bg-blue-50 transition-colors shadow-lg flex items-center gap-2"
+                  >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+                    </svg>
+                    Iniciar Sesión
+                  </button>
+                  
+                  <button
+                    *ngIf="estaAutenticado"
+                    (click)="cerrarSesion()"
+                    class="px-4 py-2 bg-white text-red-600 text-sm font-semibold rounded-full hover:bg-red-50 transition-colors shadow-lg flex items-center gap-2"
+                  >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                    </svg>
+                    Cerrar Sesión
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -102,7 +190,7 @@ interface Noticia {
         <div class="flex flex-col lg:flex-row gap-6">
           <!-- Sidebar Filters -->
           <aside class="w-full lg:w-64 flex-shrink-0">
-            <div class="bg-white rounded-lg shadow-md p-6 sticky top-24">
+            <div class="bg-white rounded-lg shadow-md p-6 sticky top-6 max-h-[calc(100vh-3rem)] overflow-y-auto sidebar-scroll">
               <h2 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
@@ -336,13 +424,26 @@ interface Noticia {
                   
                   <!-- Content -->
                   <div class="md:w-1/2 p-8">
-                    <div class="flex items-center justify-between mb-4">
-                      <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-red-500 text-white">
-                        DESTACADA
-                      </span>
-                      <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                        {{ noticiaDestacada.fuente }}
-                      </span>
+                    <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+                      <div class="flex items-center gap-2 flex-wrap">
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-red-500 text-white">
+                          DESTACADA
+                        </span>
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                          {{ noticiaDestacada.fuente }}
+                        </span>
+                        <span 
+                          *ngIf="obtenerUbicacion(noticiaDestacada)" 
+                          class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800"
+                          [title]="obtenerUbicacionCompleta(noticiaDestacada)"
+                        >
+                          <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                          </svg>
+                          {{ obtenerUbicacion(noticiaDestacada) }}
+                        </span>
+                      </div>
                     </div>
                     
                     <h2 class="text-3xl font-bold text-gray-900 mb-4 leading-tight">
@@ -359,10 +460,11 @@ interface Noticia {
                       </time>
                       
                       <a 
-                        [href]="noticiaDestacada.link" 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                        [href]="estaAutenticado ? noticiaDestacada.link : '#'" 
+                        (click)="verificarYAcceder(noticiaDestacada.link, $event)"
+                        [attr.target]="estaAutenticado ? '_blank' : null"
+                        [attr.rel]="estaAutenticado ? 'noopener noreferrer' : null"
+                        class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors cursor-pointer"
                       >
                         Leer más
                         <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -401,14 +503,29 @@ interface Noticia {
                   
                   <!-- Content -->
                   <div class="p-5">
-                    <!-- Source and Date -->
-                    <div class="flex items-center justify-between mb-3">
-                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                        {{ noticia.fuente }}
-                      </span>
-                      <time class="text-xs text-gray-500" [dateTime]="noticia.fecha">
-                        {{ formatearFecha(noticia.fecha) }}
-                      </time>
+                    <!-- Source, Location and Date -->
+                    <div class="flex flex-col gap-2 mb-3">
+                      <div class="flex items-center justify-between flex-wrap gap-2">
+                        <div class="flex items-center gap-2 flex-wrap">
+                          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                            {{ noticia.fuente }}
+                          </span>
+                          <span 
+                            *ngIf="obtenerUbicacion(noticia)" 
+                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800"
+                            [title]="obtenerUbicacionCompleta(noticia)"
+                          >
+                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                            {{ obtenerUbicacion(noticia) }}
+                          </span>
+                        </div>
+                        <time class="text-xs text-gray-500" [dateTime]="noticia.fecha">
+                          {{ formatearFecha(noticia.fecha) }}
+                        </time>
+                      </div>
                     </div>
                     
                     <!-- Title -->
@@ -424,10 +541,11 @@ interface Noticia {
                     <!-- Read More Button -->
                     <div class="flex justify-end">
                       <a 
-                        [href]="noticia.link" 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        class="inline-flex items-center text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors duration-200"
+                        [href]="estaAutenticado ? noticia.link : '#'" 
+                        (click)="verificarYAcceder(noticia.link, $event)"
+                        [attr.target]="estaAutenticado ? '_blank' : null"
+                        [attr.rel]="estaAutenticado ? 'noopener noreferrer' : null"
+                        class="inline-flex items-center text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors duration-200 cursor-pointer"
                       >
                         Leer más
                         <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -558,10 +676,36 @@ interface Noticia {
       -ms-overflow-style: none;
       scrollbar-width: none;
     }
+
+    /* Estilos para la barra de desplazamiento del sidebar */
+    .sidebar-scroll::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .sidebar-scroll::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 10px;
+    }
+
+    .sidebar-scroll::-webkit-scrollbar-thumb {
+      background: #cbd5e0;
+      border-radius: 10px;
+    }
+
+    .sidebar-scroll::-webkit-scrollbar-thumb:hover {
+      background: #a0aec0;
+    }
+
+    /* Para Firefox */
+    .sidebar-scroll {
+      scrollbar-width: thin;
+      scrollbar-color: #cbd5e0 #f1f1f1;
+    }
   `]
 })
-export class PortalNoticiasComponent implements OnInit {
+export class PortalNoticiasComponent implements OnInit, OnDestroy {
   private supabase: SupabaseClient;
+  private authSubscription?: Subscription;
   
   // Datos
   noticias: Noticia[] = [];
@@ -593,11 +737,16 @@ export class PortalNoticiasComponent implements OnInit {
   // Estados
   cargando: boolean = false;
   error: string = '';
+  estaAutenticado: boolean = false;
+  mostrandoDialogoBusqueda: boolean = false;
 
   // Para usar Math en el template
   Math = Math;
 
-  constructor() {
+  constructor(
+    private readonly router: Router,
+    private readonly authService: AuthService
+  ) {
     this.supabase = createClient(
       'https://aplusyghdeuyewrstikg.supabase.co',
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFwbHVzeWdoZGV1eWV3cnN0aWtnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2MzU5MTksImV4cCI6MjA3MzIxMTkxOX0.n1m0CnGGWYVex9AGB9XEsUNDs-VLorFK2tjyKLfQIps'
@@ -605,7 +754,21 @@ export class PortalNoticiasComponent implements OnInit {
   }
 
   ngOnInit() {
+    // Verificar estado de autenticación
+    this.estaAutenticado = this.authService.isAuthenticated();
+    
+    // Suscribirse a cambios en la autenticación
+    this.authSubscription = this.authService.currentUser.subscribe(user => {
+      this.estaAutenticado = user !== null;
+    });
+    
     this.cargarNoticias();
+  }
+
+  ngOnDestroy() {
+    if (this.authSubscription) {
+      this.authSubscription.unsubscribe();
+    }
   }
 
   async cargarNoticias() {
@@ -663,7 +826,7 @@ export class PortalNoticiasComponent implements OnInit {
   private extraerDatosUnicos() {
     // Extraer fuentes únicas
     const fuentesUnicas = new Set(this.noticias.map(noticia => noticia.fuente));
-    this.fuentes = Array.from(fuentesUnicas).sort();
+    this.fuentes = Array.from(fuentesUnicas).sort((a, b) => a.localeCompare(b));
     
     // Extraer categorías únicas (asumiendo que existe el campo categoria)
     const categoriasUnicas = new Set(
@@ -671,7 +834,7 @@ export class PortalNoticiasComponent implements OnInit {
         .map(noticia => noticia.categoria)
         .filter((cat): cat is string => cat !== undefined && cat !== null && cat.trim() !== '')
     );
-    this.categorias = Array.from(categoriasUnicas).sort();
+    this.categorias = Array.from(categoriasUnicas).sort((a, b) => a.localeCompare(b));
     
     // Si no hay categorías en la BD, usar categorías por defecto basadas en palabras clave
     if (this.categorias.length === 0) {
@@ -688,7 +851,7 @@ export class PortalNoticiasComponent implements OnInit {
         .map(noticia => noticia.autor || noticia.fuente) // Si no hay autor, usar la fuente
         .filter((autor): autor is string => autor !== undefined && autor !== null && autor.trim() !== '')
     );
-    this.autoresDestacados = Array.from(autoresUnicos).sort().slice(0, 8); // Mostrar solo los primeros 8 autores
+    this.autoresDestacados = Array.from(autoresUnicos).sort((a, b) => a.localeCompare(b)).slice(0, 8); // Mostrar solo los primeros 8 autores
     
     // Obtener noticias populares (primeras 5 como ejemplo)
     this.noticiasPopulares = this.noticias.slice(0, 5);
@@ -921,8 +1084,45 @@ export class PortalNoticiasComponent implements OnInit {
 
   // Métodos de búsqueda
   buscarNoticias() {
+    // Verificar si está autenticado antes de buscar
+    if (!this.estaAutenticado) {
+      this.irALogin();
+      return;
+    }
     this.paginaActual = 1;
     this.aplicarFiltros();
+  }
+
+  verificarBusqueda(event: Event) {
+    // Si no está autenticado y hace click o focus en el buscador, redirigir al login
+    if (!this.estaAutenticado && !this.mostrandoDialogoBusqueda) {
+      event.preventDefault();
+      event.stopPropagation();
+      
+      // Prevenir que se muestre múltiples veces
+      this.mostrandoDialogoBusqueda = true;
+      
+      // Mostrar mensaje informativo
+      Swal.fire({
+        title: 'Inicio de sesión requerido',
+        text: 'Debes iniciar sesión para usar el buscador.',
+        icon: 'info',
+        confirmButtonText: 'Ir a iniciar sesión',
+        confirmButtonColor: '#2563eb',
+        showCancelButton: true,
+        cancelButtonText: 'Cancelar',
+        cancelButtonColor: '#6b7280',
+        allowOutsideClick: false,
+        allowEscapeKey: true
+      }).then((result) => {
+        // Resetear el flag cuando se cierre el diálogo
+        this.mostrandoDialogoBusqueda = false;
+        
+        if (result.isConfirmed) {
+          this.irALogin();
+        }
+      });
+    }
   }
 
   limpiarBusqueda() {
@@ -948,5 +1148,96 @@ export class PortalNoticiasComponent implements OnInit {
       const autorNoticia = noticia.autor || noticia.fuente;
       return autorNoticia === autor;
     }).length;
+  }
+
+  // Métodos de autenticación
+  irALogin() {
+    this.router.navigate(['/login'], { 
+      queryParams: { returnUrl: '/noticias' } 
+    });
+  }
+
+  async cerrarSesion() {
+    // Mostrar diálogo de confirmación
+    const result = await Swal.fire({
+      title: '¿Está seguro?',
+      text: '¿Desea cerrar su sesión?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, cerrar sesión',
+      cancelButtonText: 'No, cancelar',
+      confirmButtonColor: '#dc2626',
+      cancelButtonColor: '#6b7280',
+      reverseButtons: true
+    });
+
+    // Si el usuario confirma (Sí)
+    if (result.isConfirmed) {
+      const signOutResult = await this.authService.signOut();
+      if (signOutResult.success) {
+        // Mostrar mensaje de confirmación de éxito
+        await Swal.fire({
+          title: '¡Sesión cerrada!',
+          text: 'Has cerrado sesión exitosamente.',
+          icon: 'success',
+          confirmButtonText: 'Aceptar',
+          confirmButtonColor: '#2563eb'
+        });
+        // Después de cerrar sesión, quedarse en la página de noticias
+        this.router.navigate(['/noticias']);
+      } else {
+        // Si hubo un error al cerrar sesión
+        await Swal.fire({
+          title: 'Error',
+          text: 'No se pudo cerrar la sesión. Por favor, intente nuevamente.',
+          icon: 'error',
+          confirmButtonText: 'Aceptar',
+          confirmButtonColor: '#dc2626'
+        });
+      }
+    }
+    // Si el usuario cancela (No), no hacer nada y mantener la sesión iniciada
+  }
+
+  verificarYAcceder(link: string, event: Event) {
+    if (!this.estaAutenticado) {
+      event.preventDefault();
+      // Guardar el link al que quería acceder para después del login
+      this.router.navigate(['/login'], { 
+        queryParams: { returnUrl: '/noticias', articleUrl: link } 
+      });
+    }
+    // Si está autenticado, el enlace funcionará normalmente
+  }
+
+  // Métodos para obtener ubicación
+  obtenerUbicacion(noticia: Noticia): string {
+    // Solo mostrar el país
+    if (noticia.pais) {
+      return noticia.pais;
+    }
+    
+    // Si no hay país, retornar vacío
+    return '';
+  }
+
+  obtenerUbicacionCompleta(noticia: Noticia): string {
+    const partes: string[] = [];
+    
+    if (noticia.ciudad) {
+      partes.push(`Ciudad: ${noticia.ciudad}`);
+    }
+    if (noticia.departamento) {
+      partes.push(`Departamento: ${noticia.departamento}`);
+    }
+    if (noticia.pais) {
+      partes.push(`País: ${noticia.pais}`);
+    }
+    
+    if (partes.length === 0) {
+      return 'Ubicación no disponible';
+    }
+    
+    return partes.join(' | ');
   }
 }

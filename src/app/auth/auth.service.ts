@@ -97,13 +97,18 @@ export class AuthService {
   /**
    * Cerrar sesión
    */
-  async signOut() {
+  async signOut(redirectToLogin: boolean = false) {
     try {
       const { error } = await this.supabase.auth.signOut();
       if (error) throw error;
 
       this.currentUserSubject.next(null);
-      this.router.navigate(['/login']);
+      
+      // Solo redirigir a login si se solicita explícitamente
+      if (redirectToLogin) {
+        this.router.navigate(['/login']);
+      }
+      
       return { success: true, error: null };
     } catch (error: any) {
       console.error('Error en signout:', error);
