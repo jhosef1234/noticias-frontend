@@ -203,7 +203,12 @@ import Swal from 'sweetalert2';
                 <div [class.bg-yellow-50]="paymentStatus === 'pending'" 
                      [class.bg-green-50]="paymentStatus === 'approved'"
                      [class.bg-red-50]="paymentStatus === 'rejected'"
-                     class="p-4 rounded-lg">
+                     [class.bg-orange-50]="paymentStatus === 'revoked'"
+                     class="p-4 rounded-lg border-2"
+                     [class.border-yellow-300]="paymentStatus === 'pending'"
+                     [class.border-green-300]="paymentStatus === 'approved'"
+                     [class.border-red-300]="paymentStatus === 'rejected'"
+                     [class.border-orange-300]="paymentStatus === 'revoked'">
                   <div class="flex items-center">
                     <svg *ngIf="paymentStatus === 'pending'" class="w-5 h-5 text-yellow-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -214,15 +219,23 @@ import Swal from 'sweetalert2';
                     <svg *ngIf="paymentStatus === 'rejected'" class="w-5 h-5 text-red-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                     </svg>
+                    <svg *ngIf="paymentStatus === 'revoked'" class="w-5 h-5 text-orange-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
+                    </svg>
                     <span [class.text-yellow-800]="paymentStatus === 'pending'"
                           [class.text-green-800]="paymentStatus === 'approved'"
                           [class.text-red-800]="paymentStatus === 'rejected'"
+                          [class.text-orange-800]="paymentStatus === 'revoked'"
                           class="text-sm font-medium">
                       {{ paymentStatus === 'pending' ? 'Pendiente de confirmación' : 
                          paymentStatus === 'approved' ? 'Pago aprobado' : 
-                         'Pago rechazado' }}
+                         paymentStatus === 'rejected' ? 'Pago rechazado' :
+                         'Pago revocado' }}
                     </span>
                   </div>
+                  <p *ngIf="paymentStatus === 'revoked'" class="text-xs text-orange-700 mt-2">
+                    Tu Plan Pro ha expirado (se agotó el mes de suscripción). Puedes renovar tu suscripción realizando un nuevo pago.
+                  </p>
                 </div>
               </div>
             </div>
@@ -231,7 +244,48 @@ import Swal from 'sweetalert2';
       </div>
     </div>
   `,
-  styles: []
+  styles: [`
+    /* Estilos personalizados para SweetAlert2 - Mensaje de éxito */
+    :host ::ng-deep .swal2-popup-success-custom {
+      border-radius: 24px !important;
+      box-shadow: 0 25px 70px rgba(16, 185, 129, 0.25) !important;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 255, 255, 0.95) 100%) !important;
+      backdrop-filter: blur(20px) !important;
+      border: 1px solid rgba(16, 185, 129, 0.1) !important;
+    }
+
+    :host ::ng-deep .swal2-title-custom {
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+
+    :host ::ng-deep .swal2-html-container-custom {
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+
+    :host ::ng-deep .swal2-confirm-success-custom {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+      border: none !important;
+      border-radius: 14px !important;
+      padding: 16px 40px !important;
+      font-size: 17px !important;
+      font-weight: 600 !important;
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4) !important;
+      transition: all 0.3s ease !important;
+      text-transform: none !important;
+    }
+
+    :host ::ng-deep .swal2-confirm-success-custom:hover {
+      transform: translateY(-3px) !important;
+      box-shadow: 0 8px 25px rgba(16, 185, 129, 0.5) !important;
+      background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+    }
+
+    :host ::ng-deep .swal2-confirm-success-custom:active {
+      transform: translateY(-1px) !important;
+    }
+  `]
 })
 export class PaymentComponent implements OnInit {
   formData = {
@@ -242,7 +296,7 @@ export class PaymentComponent implements OnInit {
     paymentTime: ''
   };
   loading = false;
-  paymentStatus: 'pending' | 'approved' | 'rejected' | null = null;
+  paymentStatus: 'pending' | 'approved' | 'rejected' | 'revoked' | null = null;
   todayDate: string = '';
 
   constructor(
@@ -280,27 +334,55 @@ export class PaymentComponent implements OnInit {
 
   async checkPaymentStatus() {
     if (this.formData.email) {
-      const status = await this.paymentService.checkPaymentStatus(this.formData.email);
-      if (status === 'approved') {
-        this.paymentStatus = 'approved';
-        // Verificar si el usuario tiene plan Pro asignado
-        if (this.planService.hasProPlan(this.formData.email)) {
-          this.planService.upgradeToPro();
-          // Redirigir después de un momento
-          setTimeout(() => {
-            Swal.fire({
-              title: '¡Pago confirmado!',
-              text: 'Tu plan ha sido actualizado a Pro. Disfruta de todas las funciones.',
-              icon: 'success',
-              confirmButtonText: 'Ir a noticias',
-              confirmButtonColor: '#9333ea'
-            }).then(() => {
-              this.router.navigate(['/noticias']);
-            });
-          }, 1000);
+      // Verificar y revocar planes expirados primero
+      await this.paymentService.checkAndRevokeExpiredPayments();
+      
+      // Obtener todas las solicitudes del usuario
+      const allRequests = await this.paymentService.getAllPaymentRequests();
+      const userRequests = allRequests.filter(r => r.user_email === this.formData.email);
+      
+      if (userRequests.length > 0) {
+        // Ordenar por fecha de creación (más reciente primero)
+        userRequests.sort((a, b) => 
+          new Date(b.created_at || '').getTime() - new Date(a.created_at || '').getTime()
+        );
+        
+        // Obtener el estado de la solicitud más reciente
+        const latestRequest = userRequests[0];
+        this.paymentStatus = latestRequest.status as 'pending' | 'approved' | 'rejected' | 'revoked';
+        
+        // Si está aprobado, verificar si ha expirado
+        if (this.paymentStatus === 'approved' && latestRequest.approved_at) {
+          const isExpired = this.paymentService.isPaymentExpired(latestRequest.approved_at);
+          if (isExpired) {
+            // Si expiró, actualizar el estado a revocado
+            if (latestRequest.id) {
+              await this.paymentService.updatePaymentRequestStatus(latestRequest.id, 'revoked');
+              this.paymentStatus = 'revoked';
+              this.planService.revokeProPlan(this.formData.email);
+            }
+          } else {
+            // Verificar si el usuario tiene plan Pro asignado
+            if (this.planService.hasProPlan(this.formData.email)) {
+              this.planService.upgradeToPro();
+              // Redirigir después de un momento
+              setTimeout(() => {
+                Swal.fire({
+                  title: '¡Pago confirmado!',
+                  text: 'Tu plan ha sido actualizado a Pro. Disfruta de todas las funciones.',
+                  icon: 'success',
+                  confirmButtonText: 'Ir a noticias',
+                  confirmButtonColor: '#9333ea'
+                }).then(() => {
+                  this.router.navigate(['/noticias']);
+                });
+              }, 1000);
+            }
+          }
+        } else if (this.paymentStatus === 'revoked') {
+          // Si fue revocado, asegurarse de que el plan esté en Free
+          this.planService.revokeProPlan(this.formData.email);
         }
-      } else if (status) {
-        this.paymentStatus = status;
       }
     }
   }
@@ -359,19 +441,86 @@ export class PaymentComponent implements OnInit {
     if (result.success) {
       this.paymentStatus = 'pending';
       await Swal.fire({
-        title: '¡Solicitud enviada!',
+        title: '<div style="font-size: 28px; font-weight: 700; color: #1e293b; margin-bottom: 8px;">🎉 ¡Solicitud Enviada!</div>',
         html: `
-          <p class="mb-4">Tu solicitud de pago ha sido enviada correctamente.</p>
-          <p class="text-sm text-gray-600 mb-4">
-            Se ha enviado una notificación al administrador para que confirme tu pago.
-          </p>
-          <p class="text-sm text-gray-600">
-            Recibirás un email cuando tu pago sea confirmado y tu plan sea actualizado a Pro.
-          </p>
+          <div style="text-align: center; padding: 20px 0;">
+            <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); width: 100px; height: 100px; border-radius: 50%; margin: 0 auto 24px; display: flex; align-items: center; justify-content: center; box-shadow: 0 15px 35px rgba(16, 185, 129, 0.4); position: relative; animation: pulse 2s infinite;">
+              <div style="background: rgba(255, 255, 255, 0.2); width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px);">
+                <svg style="width: 50px; height: 50px; color: white; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                </svg>
+              </div>
+            </div>
+            <p style="font-size: 20px; color: #1e293b; margin-bottom: 20px; font-weight: 600;">
+              Tu solicitud de pago ha sido enviada correctamente
+            </p>
+            <div style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.05) 100%); border-radius: 16px; padding: 24px; margin: 24px 0; border: 2px solid rgba(16, 185, 129, 0.2); backdrop-filter: blur(10px);">
+              <div style="display: flex; align-items: flex-start; margin-bottom: 16px; padding: 12px; background: rgba(255, 255, 255, 0.6); border-radius: 12px; backdrop-filter: blur(5px);">
+                <div style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-right: 12px; flex-shrink: 0; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);">
+                  <svg style="width: 20px; height: 20px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                  </svg>
+                </div>
+                <div style="flex: 1; text-align: left;">
+                  <p style="font-size: 15px; color: #334155; font-weight: 500; margin: 0; line-height: 1.5;">
+                    Se ha enviado una notificación al administrador para que confirme tu pago.
+                  </p>
+                </div>
+              </div>
+              <div style="display: flex; align-items: flex-start; padding: 12px; background: rgba(255, 255, 255, 0.6); border-radius: 12px; backdrop-filter: blur(5px);">
+                <div style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-right: 12px; flex-shrink: 0; box-shadow: 0 4px 10px rgba(139, 92, 246, 0.3);">
+                  <svg style="width: 20px; height: 20px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  </svg>
+                </div>
+                <div style="flex: 1; text-align: left;">
+                  <p style="font-size: 15px; color: #334155; font-weight: 500; margin: 0; line-height: 1.5;">
+                    Recibirás un email cuando tu pago sea confirmado y tu plan sea actualizado a <span style="color: #9333ea; font-weight: 600;">Pro</span>.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.05) 100%); border-radius: 12px; padding: 16px; margin-top: 20px; border: 1px dashed rgba(16, 185, 129, 0.3);">
+              <p style="font-size: 13px; color: #64748b; margin: 0; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <svg style="width: 18px; height: 18px; color: #10b981;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <span>Tu solicitud está siendo procesada</span>
+              </p>
+            </div>
+          </div>
+          <style>
+            @keyframes pulse {
+              0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 15px 35px rgba(16, 185, 129, 0.4);
+              }
+              50% {
+                transform: scale(1.05);
+                box-shadow: 0 20px 45px rgba(16, 185, 129, 0.5);
+              }
+            }
+          </style>
         `,
-        icon: 'success',
-        confirmButtonText: 'Entendido',
-        confirmButtonColor: '#9333ea'
+        icon: undefined,
+        confirmButtonText: '<div style="display: flex; align-items: center; gap: 8px;"><svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Entendido</div>',
+        confirmButtonColor: '#10b981',
+        width: '650px',
+        padding: '2.5rem',
+        customClass: {
+          popup: 'swal2-popup-success-custom',
+          title: 'swal2-title-custom',
+          htmlContainer: 'swal2-html-container-custom',
+          confirmButton: 'swal2-confirm-success-custom'
+        },
+        buttonsStyling: true,
+        backdrop: true,
+        allowOutsideClick: true,
+        allowEscapeKey: true
+      }).then((result) => {
+        if (result.isConfirmed) {
+          this.router.navigate(['/noticias']);
+        }
       });
 
       // Iniciar verificación periódica del estado

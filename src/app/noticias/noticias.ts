@@ -404,11 +404,11 @@ export interface Noticia {
         <div class="flex flex-col lg:flex-row gap-6">
           <!-- Sidebar Filters -->
           <aside class="w-full lg:w-64 flex-shrink-0">
-            <div class="bg-white rounded-lg shadow-md p-6 sticky top-6 max-h-[calc(100vh-3rem)] overflow-y-auto sidebar-scroll" [class.opacity-50]="!planService.isPro()" [class.pointer-events-none]="!planService.isPro()">
+            <div class="bg-white rounded-lg shadow-md p-6 sticky top-6 max-h-[calc(100vh-3rem)] overflow-y-auto sidebar-scroll">
               <!-- Mensaje para usuarios Free -->
               <div *ngIf="!planService.isPro()" class="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
                 <p class="text-xs text-yellow-800 mb-2">
-                  <strong>Plan Free:</strong> Los filtros están disponibles en el Plan Pro.
+                  <strong>Plan Free:</strong> Algunos filtros están disponibles en el Plan Pro.
                 </p>
                 <button
                   routerLink="/planes"
@@ -446,7 +446,7 @@ export interface Noticia {
                 </label>
                 <select
                   [(ngModel)]="categoriaSeleccionada"
-                  (ngModelChange)="aplicarFiltros()"
+                  (ngModelChange)="verificarYFiltrarCategoria($event)"
                   class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
                 >
                   <option value="">Todas las categorías</option>
@@ -463,7 +463,7 @@ export interface Noticia {
                 </label>
                 <select
                   [(ngModel)]="fuenteSeleccionada"
-                  (ngModelChange)="aplicarFiltros()"
+                  (ngModelChange)="verificarYFiltrarFuente($event)"
                   class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
                 >
                   <option value="">Todas las fuentes</option>
@@ -499,54 +499,19 @@ export interface Noticia {
                 </select>
               </div>
 
-              <!-- Tipo de Contenido -->
+              <!-- Botón Limpiar Filtros -->
               <div class="mb-6">
-                <label class="block text-sm font-medium text-gray-700 mb-3">
-                  Tipo de Contenido
-                </label>
-                <div class="space-y-2">
-                  <label class="flex items-center cursor-pointer">
-                    <input
-                      type="radio"
-                      [(ngModel)]="tipoContenido"
-                      value="todos"
-                      (ngModelChange)="aplicarFiltros()"
-                      class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
-                    />
-                    <span class="ml-2 text-sm text-gray-700">Todos</span>
-                  </label>
-                  <label class="flex items-center cursor-pointer">
-                    <input
-                      type="radio"
-                      [(ngModel)]="tipoContenido"
-                      value="articulo"
-                      (ngModelChange)="aplicarFiltros()"
-                      class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
-                    />
-                    <span class="ml-2 text-sm text-gray-700">Artículo</span>
-                  </label>
-                  <label class="flex items-center cursor-pointer">
-                    <input
-                      type="radio"
-                      [(ngModel)]="tipoContenido"
-                      value="foto"
-                      (ngModelChange)="aplicarFiltros()"
-                      class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
-                    />
-                    <span class="ml-2 text-sm text-gray-700">Foto</span>
-                  </label>
-                  <label class="flex items-center cursor-pointer">
-                    <input
-                      type="radio"
-                      [(ngModel)]="tipoContenido"
-                      value="video"
-                      (ngModelChange)="aplicarFiltros()"
-                      class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
-                    />
-                    <span class="ml-2 text-sm text-gray-700">Video</span>
-                  </label>
-                </div>
+                <button
+                  (click)="limpiarFiltros()"
+                  class="w-full px-4 py-2 bg-gray-200 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-300 transition-colors flex items-center justify-center gap-2"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                  </svg>
+                  Limpiar Filtros
+                </button>
               </div>
+
 
               <!-- Resultados Counter -->
               <div class="pt-4 border-t border-gray-200">
@@ -564,8 +529,10 @@ export interface Noticia {
                 <div class="space-y-3">
                   <a 
                     *ngFor="let noticia of noticiasPopulares"
-                    [href]="noticia.link"
-                    target="_blank"
+                    (click)="verificarYAccederPopular(noticia.link, $event)"
+                    [class.cursor-pointer]="planService.isPro()"
+                    [class.cursor-not-allowed]="!planService.isPro()"
+                    [class.opacity-50]="!planService.isPro()"
                     class="block text-xs text-gray-600 hover:text-blue-600 line-clamp-2 transition-colors"
                   >
                     {{ noticia.titulo }}
@@ -581,7 +548,7 @@ export interface Noticia {
                 <div class="space-y-2">
                   <button
                     *ngFor="let autor of autoresDestacados"
-                    (click)="filtrarPorAutor(autor)"
+                    (click)="verificarYFiltrarPorAutor(autor)"
                     [class.bg-blue-50]="autorSeleccionado === autor"
                     [class.text-blue-600]="autorSeleccionado === autor"
                     class="w-full text-left px-3 py-2 rounded-md text-xs text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors flex items-center justify-between group"
@@ -964,6 +931,55 @@ export interface Noticia {
       scrollbar-width: thin;
       scrollbar-color: #cbd5e0 #f1f1f1;
     }
+
+    /* Estilos personalizados para SweetAlert2 */
+    :host ::ng-deep .swal2-popup-custom {
+      border-radius: 20px !important;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15) !important;
+    }
+
+    :host ::ng-deep .swal2-title-custom {
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+
+    :host ::ng-deep .swal2-html-container-custom {
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+
+    :host ::ng-deep .swal2-confirm-custom {
+      background: linear-gradient(135deg, #9333ea 0%, #7c3aed 100%) !important;
+      border: none !important;
+      border-radius: 12px !important;
+      padding: 14px 32px !important;
+      font-size: 16px !important;
+      font-weight: 600 !important;
+      box-shadow: 0 4px 15px rgba(147, 51, 234, 0.4) !important;
+      transition: all 0.3s ease !important;
+    }
+
+    :host ::ng-deep .swal2-confirm-custom:hover {
+      transform: translateY(-2px) !important;
+      box-shadow: 0 6px 20px rgba(147, 51, 234, 0.5) !important;
+    }
+
+    :host ::ng-deep .swal2-cancel-custom {
+      background: #f1f5f9 !important;
+      color: #64748b !important;
+      border: 2px solid #e2e8f0 !important;
+      border-radius: 12px !important;
+      padding: 14px 32px !important;
+      font-size: 16px !important;
+      font-weight: 600 !important;
+      transition: all 0.3s ease !important;
+    }
+
+    :host ::ng-deep .swal2-cancel-custom:hover {
+      background: #e2e8f0 !important;
+      border-color: #cbd5e0 !important;
+      transform: translateY(-2px) !important;
+    }
   `]
 })
 export class PortalNoticiasComponent implements OnInit, OnDestroy {
@@ -989,7 +1005,6 @@ export class PortalNoticiasComponent implements OnInit, OnDestroy {
   categoriaSeleccionada: string = '';
   paisSeleccionado: string = '';
   ordenSeleccionado: string = 'recientes';
-  tipoContenido: string = 'todos';
   terminoBusqueda: string = '';
   autorSeleccionado: string = '';
   
@@ -1031,8 +1046,10 @@ export class PortalNoticiasComponent implements OnInit, OnDestroy {
       localStorage.setItem('current_user_email', currentUser.email);
     }
     
-    // Verificar plan inicial
-    this.planService.isPro();
+    // Verificar plan inicial y planes expirados
+    this.planService.checkProStatusAsync().then(() => {
+      // La UI se actualizará automáticamente
+    });
     
     // Suscribirse a cambios en el plan (opcional, para actualización en tiempo real)
     this.planSubscription = this.planService.plan$.subscribe(() => {
@@ -1048,8 +1065,8 @@ export class PortalNoticiasComponent implements OnInit, OnDestroy {
       // Actualizar email cuando cambia el usuario
       if (user?.email) {
         localStorage.setItem('current_user_email', user.email);
-        // Verificar plan después de actualizar email
-        this.planService.isPro();
+        // Verificar plan después de actualizar email (incluyendo expiración)
+        this.planService.checkProStatusAsync();
       } else {
         localStorage.removeItem('current_user_email');
         // Si no hay usuario, forzar Free
@@ -1157,8 +1174,12 @@ export class PortalNoticiasComponent implements OnInit, OnDestroy {
     );
     this.autoresDestacados = Array.from(autoresUnicos).sort((a, b) => a.localeCompare(b)).slice(0, 8); // Mostrar solo los primeros 8 autores
     
-    // Obtener noticias populares (primeras 5 como ejemplo)
-    this.noticiasPopulares = this.noticias.slice(0, 5);
+    // Obtener noticias populares basadas en favoritos y lecturas (GLOBALES - todos los usuarios)
+    this.calcularNoticiasPopulares().catch(err => {
+      console.error('Error calculando noticias populares:', err);
+      // Si falla, usar las primeras 5 más recientes como fallback
+      this.noticiasPopulares = this.noticias.slice(0, 5);
+    });
     
     // Obtener noticias de autores destacados (noticias 5-10 como ejemplo)
     this.noticiasAutores = this.noticias.slice(5, 10);
@@ -1170,13 +1191,128 @@ export class PortalNoticiasComponent implements OnInit, OnDestroy {
     this.aplicarFiltros();
   }
 
-  aplicarFiltros() {
-    // Si es plan Free, no aplicar filtros (solo mostrar todas las noticias)
+  // Métodos para verificar plan antes de aplicar filtros
+
+  verificarYFiltrarCategoria(valor: string) {
+    if (!this.planService.isPro() && valor !== '') {
+      this.mostrarMensajePlanPro('filtrar por categoría');
+      this.categoriaSeleccionada = '';
+      return;
+    }
+    this.categoriaSeleccionada = valor;
+    this.aplicarFiltros();
+  }
+
+  verificarYFiltrarFuente(valor: string) {
+    if (!this.planService.isPro() && valor !== '') {
+      this.mostrarMensajePlanPro('filtrar por fuente');
+      this.fuenteSeleccionada = '';
+      return;
+    }
+    this.fuenteSeleccionada = valor;
+    this.aplicarFiltros();
+  }
+
+
+
+  verificarYFiltrarPorAutor(autor: string) {
     if (!this.planService.isPro()) {
-      // Para usuarios Free, solo permitir ordenar por fecha
-      let noticiasFiltradas = [...this.noticias];
+      this.mostrarMensajePlanPro('filtrar por autor');
+      this.autorSeleccionado = '';
+      return;
+    }
+    this.filtrarPorAutor(autor);
+  }
+
+  mostrarMensajePlanPro(accion: string) {
+    Swal.fire({
+      title: '<div style="font-size: 28px; font-weight: 700; color: #1e293b; margin-bottom: 8px;">✨ Plan Pro Requerido</div>',
+      html: `
+        <div style="text-align: center; padding: 20px 0;">
+          <div style="background: linear-gradient(135deg, #9333ea 0%, #7c3aed 100%); width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 25px rgba(147, 51, 234, 0.3);">
+            <svg style="width: 45px; height: 45px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
+            </svg>
+          </div>
+          <p style="font-size: 18px; color: #475569; margin-bottom: 24px; font-weight: 500;">
+            Para <span style="color: #9333ea; font-weight: 600;">${accion}</span> necesitas el Plan Pro
+          </p>
+          <div style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border-radius: 16px; padding: 24px; margin: 20px 0; border: 2px solid #e2e8f0;">
+            <p style="font-size: 16px; font-weight: 600; color: #1e293b; margin-bottom: 16px; text-align: left;">
+              🎯 El Plan Pro incluye:
+            </p>
+            <div style="text-align: left; space-y: 12px;">
+              <div style="display: flex; align-items: center; margin-bottom: 12px; padding: 10px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                <div style="background: linear-gradient(135deg, #9333ea 0%, #7c3aed 100%); width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 12px; flex-shrink: 0;">
+                  <svg style="width: 18px; height: 18px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
+                  </svg>
+                </div>
+                <span style="font-size: 15px; color: #334155; font-weight: 500;">Filtros avanzados (categoría, fuente, autores)</span>
+              </div>
+              <div style="display: flex; align-items: center; margin-bottom: 12px; padding: 10px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                <div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 12px; flex-shrink: 0;">
+                  <svg style="width: 18px; height: 18px; color: white;" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
+                  </svg>
+                </div>
+                <span style="font-size: 15px; color: #334155; font-weight: 500;">Guardar en favoritos</span>
+              </div>
+              <div style="display: flex; align-items: center; padding: 10px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                <div style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 12px; flex-shrink: 0;">
+                  <svg style="width: 18px; height: 18px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  </svg>
+                </div>
+                <span style="font-size: 15px; color: #334155; font-weight: 500;">Historial de lectura</span>
+              </div>
+            </div>
+          </div>
+          <p style="font-size: 14px; color: #64748b; margin-top: 20px; font-style: italic;">
+            💡 Desbloquea todas las funciones premium
+          </p>
+        </div>
+      `,
+      icon: undefined,
+      showCancelButton: true,
+      confirmButtonText: '<div style="display: flex; align-items: center; gap: 8px;"><svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg> Ver Planes</div>',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#9333ea',
+      cancelButtonColor: '#64748b',
+      width: '600px',
+      padding: '2rem',
+      customClass: {
+        popup: 'swal2-popup-custom',
+        title: 'swal2-title-custom',
+        htmlContainer: 'swal2-html-container-custom',
+        confirmButton: 'swal2-confirm-custom',
+        cancelButton: 'swal2-cancel-custom'
+      },
+      buttonsStyling: true,
+      backdrop: true,
+      allowOutsideClick: true,
+      allowEscapeKey: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.router.navigate(['/planes']);
+      }
+    });
+  }
+
+  aplicarFiltros() {
+    let noticiasFiltradas = [...this.noticias];
+    
+    // Si es plan Free, solo permitir ordenar y filtrar por país
+    if (!this.planService.isPro()) {
+      // Filtrar por país (disponible en Free)
+      if (this.paisSeleccionado && this.paisSeleccionado !== '') {
+        noticiasFiltradas = noticiasFiltradas.filter(noticia => {
+          const textoCompleto = `${noticia.titulo} ${noticia.contenido}`.toLowerCase();
+          return textoCompleto.includes(this.paisSeleccionado.toLowerCase());
+        });
+      }
       
-      // Ordenar
+      // Ordenar (disponible en Free - más recientes y más antiguos)
       if (this.ordenSeleccionado === 'recientes') {
         noticiasFiltradas.sort((a, b) => 
           new Date(b.fecha).getTime() - new Date(a.fecha).getTime()
@@ -1194,7 +1330,7 @@ export class PortalNoticiasComponent implements OnInit, OnDestroy {
     }
     
     // Para usuarios Pro, aplicar todos los filtros
-    let noticiasFiltradas = [...this.noticias];
+    noticiasFiltradas = [...this.noticias];
 
     // Filtrar por búsqueda
     if (this.terminoBusqueda && this.terminoBusqueda.trim() !== '') {
@@ -1248,16 +1384,6 @@ export class PortalNoticiasComponent implements OnInit, OnDestroy {
       });
     }
 
-    // Filtrar por tipo de contenido
-    if (this.tipoContenido !== 'todos') {
-      noticiasFiltradas = noticiasFiltradas.filter(noticia => {
-        if (this.tipoContenido === 'foto') {
-          return noticia.imagen_url && noticia.imagen_url.trim() !== '';
-        }
-        // Para video y artículo, necesitarías tener un campo que lo indique
-        return true;
-      });
-    }
 
     // Ordenar
     if (this.ordenSeleccionado === 'recientes') {
@@ -1308,7 +1434,6 @@ export class PortalNoticiasComponent implements OnInit, OnDestroy {
     return this.fuenteSeleccionada !== '' || 
            this.categoriaSeleccionada !== '' ||
            this.paisSeleccionado !== '' ||
-           this.tipoContenido !== 'todos' ||
            this.ordenSeleccionado !== 'recientes' ||
            this.terminoBusqueda !== '' ||
            this.autorSeleccionado !== '';
@@ -1318,7 +1443,6 @@ export class PortalNoticiasComponent implements OnInit, OnDestroy {
     this.fuenteSeleccionada = '';
     this.categoriaSeleccionada = '';
     this.paisSeleccionado = '';
-    this.tipoContenido = 'todos';
     this.ordenSeleccionado = 'recientes';
     this.terminoBusqueda = '';
     this.autorSeleccionado = '';
@@ -1573,7 +1697,7 @@ export class PortalNoticiasComponent implements OnInit, OnDestroy {
     return this.storageService.esFavorito(noticiaId);
   }
 
-  toggleFavorito(noticia: Noticia) {
+  async toggleFavorito(noticia: Noticia) {
     // Verificar si tiene plan Pro
     if (!this.planService.isPro()) {
       Swal.fire({
@@ -1602,7 +1726,7 @@ export class PortalNoticiasComponent implements OnInit, OnDestroy {
     }
 
     if (this.esFavorito(noticia.id)) {
-      this.storageService.eliminarFavorito(noticia.id);
+      await this.storageService.eliminarFavorito(noticia.id);
       Swal.fire({
         title: 'Eliminado de favoritos',
         text: 'La noticia ha sido eliminada de tus favoritos.',
@@ -1612,7 +1736,7 @@ export class PortalNoticiasComponent implements OnInit, OnDestroy {
         timer: 2000
       });
     } else {
-      this.storageService.agregarFavorito(noticia);
+      await this.storageService.agregarFavorito(noticia);
       Swal.fire({
         title: 'Agregado a favoritos',
         text: 'La noticia ha sido agregada a tus favoritos.',
@@ -1622,13 +1746,22 @@ export class PortalNoticiasComponent implements OnInit, OnDestroy {
         timer: 2000
       });
     }
+    
+    // Recalcular noticias populares después de cambiar favoritos (GLOBALES)
+    this.calcularNoticiasPopulares().catch(err => {
+      console.error('Error recalculando noticias populares:', err);
+    });
   }
 
   // Métodos para Historial
-  agregarAlHistorial(noticia: Noticia) {
+  async agregarAlHistorial(noticia: Noticia) {
     // Solo agregar al historial si tiene plan Pro
     if (this.planService.isPro()) {
-      this.storageService.agregarAlHistorial(noticia);
+      await this.storageService.agregarAlHistorial(noticia);
+      // Recalcular noticias populares después de agregar al historial (GLOBALES)
+      this.calcularNoticiasPopulares().catch(err => {
+        console.error('Error recalculando noticias populares:', err);
+      });
     }
   }
 
@@ -1665,5 +1798,72 @@ export class PortalNoticiasComponent implements OnInit, OnDestroy {
 
   irAPlanes() {
     this.router.navigate(['/planes']);
+  }
+
+  verificarYAccederPopular(link: string, event: Event) {
+    if (!this.planService.isPro()) {
+      event.preventDefault();
+      event.stopPropagation();
+      this.mostrarMensajePlanPro('acceder a las noticias populares');
+    } else {
+      // Si es Pro, permitir el acceso normal
+      window.open(link, '_blank', 'noopener,noreferrer');
+    }
+  }
+
+  /**
+   * Calcula las noticias más populares basándose en:
+   * - Número de veces que han sido guardadas en favoritos (GLOBAL - todos los usuarios)
+   * - Número de veces que han sido leídas (historial GLOBAL - todos los usuarios)
+   * Score = (favoritos * 2) + lecturas
+   * 
+   * IMPORTANTE: Las estadísticas son GLOBALES, sumando las acciones de TODOS los usuarios
+   */
+  private async calcularNoticiasPopulares(): Promise<void> {
+    try {
+      // Obtener estadísticas de popularidad GLOBALES desde Supabase
+      const popularidadStats = await this.storageService.getAllPopularidadStats();
+      
+      // Crear un array con las noticias y sus scores
+      const noticiasConScore = this.noticias.map(noticia => {
+        const stats = popularidadStats[noticia.id] || { favoritos: 0, lecturas: 0, score: 0 };
+        return {
+          noticia,
+          score: stats.score,
+          favoritos: stats.favoritos,
+          lecturas: stats.lecturas
+        };
+      });
+      
+      // Ordenar por score descendente (más populares primero)
+      noticiasConScore.sort((a, b) => {
+        // Si tienen el mismo score, priorizar las más recientes
+        if (b.score === a.score) {
+          return new Date(b.noticia.fecha).getTime() - new Date(a.noticia.fecha).getTime();
+        }
+        return b.score - a.score;
+      });
+      
+      // Tomar las top 5
+      this.noticiasPopulares = noticiasConScore
+        .slice(0, 5)
+        .map(item => item.noticia);
+      
+      // Si no hay suficientes noticias con score, completar con las más recientes
+      if (this.noticiasPopulares.length < 5) {
+        const noticiasRestantes = this.noticias
+          .filter(n => !this.noticiasPopulares.some(p => p.id === n.id))
+          .sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime())
+          .slice(0, 5 - this.noticiasPopulares.length);
+        
+        this.noticiasPopulares = [...this.noticiasPopulares, ...noticiasRestantes];
+      }
+    } catch (error) {
+      console.error('Error calculando noticias populares:', error);
+      // En caso de error, usar las más recientes como fallback
+      this.noticiasPopulares = this.noticias
+        .sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime())
+        .slice(0, 5);
+    }
   }
 }

@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { PaymentService } from './payment.service';
 
 export type PlanType = 'free' | 'pro';
 
@@ -12,11 +13,14 @@ export class PlanService {
   private planSubject: BehaviorSubject<PlanType>;
   public plan$: Observable<PlanType>;
 
-  constructor() {
+  constructor(private paymentService: PaymentService) {
     // Inicializar con el plan actual
     const initialPlan = this.getPlan();
     this.planSubject = new BehaviorSubject<PlanType>(initialPlan);
     this.plan$ = this.planSubject.asObservable();
+    
+    // Verificar y revocar planes expirados al inicializar el servicio
+    this.checkExpiredPlans();
   }
 
   getPlan(): PlanType {
@@ -30,7 +34,7 @@ export class PlanService {
   }
 
   isPro(): boolean {
-    // Verificar primero si el usuario actual tiene plan Pro asignado por email
+    // Versión síncrona para uso en templates
     const currentUserEmail = localStorage.getItem('current_user_email');
     if (currentUserEmail) {
       const proUsers = JSON.parse(localStorage.getItem('pro_users') || '[]');
@@ -38,6 +42,45 @@ export class PlanService {
       
       // Sincronizar el plan local con la lista de usuarios Pro
       if (hasPro) {
+        const currentPlan = this.getPlan();
+        if (currentPlan !== 'pro') {
+          this.setPlan('pro');
+        }
+        return true;
+      } else {
+        const currentPlan = this.getPlan();
+        if (currentPlan !== 'free') {
+          this.setPlan('free');
+        }
+        return false;
+      }
+    }
+    // Si no hay email guardado, verificar el plan local (para compatibilidad)
+    const plan = this.getPlan();
+    this.planSubject.next(plan);
+    return plan === 'pro';
+  }
+
+  async checkProStatusAsync(): Promise<boolean> {
+    // Verificar y revocar planes expirados primero
+    await this.checkExpiredPlans();
+    
+    // Verificar primero si el usuario actual tiene plan Pro asignado por email
+    const currentUserEmail = localStorage.getItem('current_user_email');
+    if (currentUserEmail) {
+      const proUsers = JSON.parse(localStorage.getItem('pro_users') || '[]');
+      const hasPro = proUsers.includes(currentUserEmail);
+      
+      // Si tiene Pro, verificar que no haya expirado
+      if (hasPro) {
+        const isExpired = await this.isUserPlanExpired(currentUserEmail);
+        if (isExpired) {
+          // Si expiró, revocar el plan
+          this.revokeProPlan(currentUserEmail);
+          return false;
+        }
+        
+        // Sincronizar el plan local con la lista de usuarios Pro
         const currentPlan = this.getPlan();
         if (currentPlan !== 'pro') {
           this.setPlan('pro');
@@ -56,6 +99,42 @@ export class PlanService {
     const plan = this.getPlan();
     this.planSubject.next(plan);
     return plan === 'pro';
+  }
+
+  /**
+   * Verifica si el plan Pro de un usuario ha expirado
+   */
+  private async isUserPlanExpired(userEmail: string): Promise<boolean> {
+    const allRequests = await this.paymentService.getAllPaymentRequests();
+    const userApprovedRequests = allRequests.filter(
+      r => r.user_email === userEmail && r.status === 'approved' && r.approved_at
+    );
+    
+    if (userApprovedRequests.length === 0) return false;
+    
+    // Ordenar por fecha de aprobación (más reciente primero)
+    userApprovedRequests.sort((a, b) => 
+      new Date(b.approved_at!).getTime() - new Date(a.approved_at!).getTime()
+    );
+    
+    // Verificar si el más reciente ha expirado
+    const latestRequest = userApprovedRequests[0];
+    return this.paymentService.isPaymentExpired(latestRequest.approved_at);
+  }
+
+  /**
+   * Verifica y revoca automáticamente todos los planes expirados
+   */
+  private async checkExpiredPlans(): Promise<void> {
+    try {
+      const revokedCount = await this.paymentService.checkAndRevokeExpiredPayments();
+      
+      if (revokedCount > 0) {
+        console.log(`✅ ${revokedCount} plan(es) Pro revocado(s) automáticamente por expiración`);
+      }
+    } catch (error) {
+      console.error('Error verificando planes expirados:', error);
+    }
   }
 
   isFree(): boolean {

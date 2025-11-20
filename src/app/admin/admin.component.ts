@@ -50,7 +50,7 @@ import Swal from 'sweetalert2';
       <div class="w-full px-4 sm:px-6 lg:px-8 py-12">
         <div class="max-w-6xl mx-auto">
           <!-- Estadísticas -->
-          <div class="grid md:grid-cols-3 gap-6 mb-8">
+          <div class="grid md:grid-cols-4 gap-6 mb-8">
             <div class="bg-white rounded-lg shadow-md p-6">
               <div class="flex items-center justify-between">
                 <div>
@@ -80,12 +80,25 @@ import Swal from 'sweetalert2';
             <div class="bg-white rounded-lg shadow-md p-6">
               <div class="flex items-center justify-between">
                 <div>
-                  <p class="text-sm text-gray-600">Total</p>
-                  <p class="text-3xl font-bold text-gray-600">{{ paymentRequests.length }}</p>
+                  <p class="text-sm text-gray-600">Rechazados</p>
+                  <p class="text-3xl font-bold text-red-600">{{ rejectedCount }}</p>
                 </div>
-                <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
-                  <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                  <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+            <div class="bg-white rounded-lg shadow-md p-6">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm text-gray-600">Revocados</p>
+                  <p class="text-3xl font-bold text-orange-600">{{ revokedCount }}</p>
+                </div>
+                <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
+                  <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
                   </svg>
                 </div>
               </div>
@@ -151,46 +164,151 @@ import Swal from 'sweetalert2';
             </div>
 
             <div *ngIf="!loading && paymentRequests.length > 0" class="divide-y divide-gray-200">
-              <div *ngFor="let request of paymentRequests" class="p-6 hover:bg-gray-50 transition-colors">
-                <div class="flex items-start justify-between">
-                  <div class="flex-1">
-                    <div class="flex items-center gap-3 mb-2">
-                      <h3 class="text-lg font-semibold text-gray-900">{{ request.user_name }}</h3>
-                      <span [class.bg-yellow-100]="request.status === 'pending'"
-                            [class.text-yellow-800]="request.status === 'pending'"
-                            [class.bg-green-100]="request.status === 'approved'"
-                            [class.text-green-800]="request.status === 'approved'"
-                            [class.bg-red-100]="request.status === 'rejected'"
-                            [class.text-red-800]="request.status === 'rejected'"
-                            class="px-2 py-1 rounded-full text-xs font-medium">
-                        {{ request.status === 'pending' ? 'Pendiente' : 
-                           request.status === 'approved' ? 'Aprobado' : 
-                           'Rechazado' }}
-                      </span>
-                    </div>
-                    <div class="space-y-1 text-sm text-gray-600">
-                      <p><strong>Email:</strong> {{ request.user_email }}</p>
-                      <p><strong>Teléfono:</strong> {{ request.user_phone }}</p>
-                      <p><strong>Plan:</strong> {{ request.plan | uppercase }}</p>
-                      <p><strong>Fecha del pago:</strong> {{ formatPaymentDateTime(request.payment_date, request.payment_time) }}</p>
-                      <p><strong>Fecha de solicitud:</strong> {{ formatDate(request.created_at) }}</p>
+              <!-- Sección: Pendientes -->
+              <div *ngIf="getRequestsByStatus('pending').length > 0" class="p-6 bg-yellow-50 border-l-4 border-yellow-400">
+                <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                  <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  </svg>
+                  Pendientes ({{ getRequestsByStatus('pending').length }})
+                </h3>
+                <div class="space-y-4">
+                  <div *ngFor="let request of getRequestsByStatus('pending')" class="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+                    <div class="flex items-start justify-between">
+                      <div class="flex-1">
+                        <div class="flex items-center gap-3 mb-2">
+                          <h4 class="text-lg font-semibold text-gray-900">{{ request.user_name }}</h4>
+                          <span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium">
+                            Pendiente
+                          </span>
+                        </div>
+                        <div class="space-y-1 text-sm text-gray-600">
+                          <p><strong>Email:</strong> {{ request.user_email }}</p>
+                          <p><strong>Teléfono:</strong> {{ request.user_phone }}</p>
+                          <p><strong>Plan:</strong> {{ request.plan | uppercase }}</p>
+                          <p><strong>Fecha del pago:</strong> {{ formatPaymentDateTime(request.payment_date, request.payment_time) }}</p>
+                          <p><strong>Fecha de solicitud:</strong> {{ formatDate(request.created_at) }}</p>
+                        </div>
+                      </div>
+                      <div class="flex gap-2 ml-4">
+                        <button
+                          (click)="approvePayment(request)"
+                          class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
+                        >
+                          Aprobar
+                        </button>
+                        <button
+                          (click)="rejectPayment(request)"
+                          class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium"
+                        >
+                          Rechazar
+                        </button>
+                      </div>
                     </div>
                   </div>
-                  <div class="flex gap-2 ml-4">
-                    <button
-                      *ngIf="request.status === 'pending'"
-                      (click)="approvePayment(request)"
-                      class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
-                    >
-                      Aprobar
-                    </button>
-                    <button
-                      *ngIf="request.status === 'pending'"
-                      (click)="rejectPayment(request)"
-                      class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium"
-                    >
-                      Rechazar
-                    </button>
+                </div>
+              </div>
+
+              <!-- Sección: Aprobados -->
+              <div *ngIf="getRequestsByStatus('approved').length > 0" class="p-6 bg-green-50 border-l-4 border-green-400">
+                <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                  <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                  </svg>
+                  Aprobados ({{ getRequestsByStatus('approved').length }})
+                </h3>
+                <div class="space-y-4">
+                  <div *ngFor="let request of getRequestsByStatus('approved')" class="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+                    <div class="flex items-start justify-between">
+                      <div class="flex-1">
+                        <div class="flex items-center gap-3 mb-2">
+                          <h4 class="text-lg font-semibold text-gray-900">{{ request.user_name }}</h4>
+                          <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
+                            Aprobado
+                          </span>
+                        </div>
+                        <div class="space-y-1 text-sm text-gray-600">
+                          <p><strong>Email:</strong> {{ request.user_email }}</p>
+                          <p><strong>Teléfono:</strong> {{ request.user_phone }}</p>
+                          <p><strong>Plan:</strong> {{ request.plan | uppercase }}</p>
+                          <p><strong>Fecha del pago:</strong> {{ formatPaymentDateTime(request.payment_date, request.payment_time) }}</p>
+                          <p><strong>Fecha de solicitud:</strong> {{ formatDate(request.created_at) }}</p>
+                          <p *ngIf="request.approved_at" class="text-green-600"><strong>Fecha de aprobación:</strong> {{ formatDate(request.approved_at) }}</p>
+                        </div>
+                      </div>
+                      <div class="flex gap-2 ml-4">
+                        <button
+                          (click)="revokePaymentRequest(request)"
+                          class="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm font-medium"
+                        >
+                          Revocar
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Sección: Rechazados -->
+              <div *ngIf="getRequestsByStatus('rejected').length > 0" class="p-6 bg-red-50 border-l-4 border-red-400">
+                <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                  <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                  </svg>
+                  Rechazados ({{ getRequestsByStatus('rejected').length }})
+                </h3>
+                <div class="space-y-4">
+                  <div *ngFor="let request of getRequestsByStatus('rejected')" class="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+                    <div class="flex items-start justify-between">
+                      <div class="flex-1">
+                        <div class="flex items-center gap-3 mb-2">
+                          <h4 class="text-lg font-semibold text-gray-900">{{ request.user_name }}</h4>
+                          <span class="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs font-medium">
+                            Rechazado
+                          </span>
+                        </div>
+                        <div class="space-y-1 text-sm text-gray-600">
+                          <p><strong>Email:</strong> {{ request.user_email }}</p>
+                          <p><strong>Teléfono:</strong> {{ request.user_phone }}</p>
+                          <p><strong>Plan:</strong> {{ request.plan | uppercase }}</p>
+                          <p><strong>Fecha del pago:</strong> {{ formatPaymentDateTime(request.payment_date, request.payment_time) }}</p>
+                          <p><strong>Fecha de solicitud:</strong> {{ formatDate(request.created_at) }}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Sección: Revocados -->
+              <div *ngIf="getRequestsByStatus('revoked').length > 0" class="p-6 bg-orange-50 border-l-4 border-orange-400">
+                <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                  <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
+                  </svg>
+                  Revocados ({{ getRequestsByStatus('revoked').length }})
+                </h3>
+                <div class="space-y-4">
+                  <div *ngFor="let request of getRequestsByStatus('revoked')" class="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+                    <div class="flex items-start justify-between">
+                      <div class="flex-1">
+                        <div class="flex items-center gap-3 mb-2">
+                          <h4 class="text-lg font-semibold text-gray-900">{{ request.user_name }}</h4>
+                          <span class="px-2 py-1 bg-orange-100 text-orange-800 rounded-full text-xs font-medium">
+                            Revocado
+                          </span>
+                        </div>
+                        <div class="space-y-1 text-sm text-gray-600">
+                          <p><strong>Email:</strong> {{ request.user_email }}</p>
+                          <p><strong>Teléfono:</strong> {{ request.user_phone }}</p>
+                          <p><strong>Plan:</strong> {{ request.plan | uppercase }}</p>
+                          <p><strong>Fecha del pago:</strong> {{ formatPaymentDateTime(request.payment_date, request.payment_time) }}</p>
+                          <p><strong>Fecha de solicitud:</strong> {{ formatDate(request.created_at) }}</p>
+                          <p *ngIf="request.approved_at" class="text-green-600"><strong>Fecha de aprobación:</strong> {{ formatDate(request.approved_at) }}</p>
+                          <p *ngIf="request.revoked_at" class="text-orange-600"><strong>Fecha de revocación:</strong> {{ formatDate(request.revoked_at) }}</p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -208,6 +326,8 @@ export class AdminComponent implements OnInit {
   loading = false;
   pendingCount = 0;
   approvedCount = 0;
+  rejectedCount = 0;
+  revokedCount = 0;
 
   constructor(
     private readonly paymentService: PaymentService,
@@ -215,6 +335,8 @@ export class AdminComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
+    // Verificar y revocar planes expirados al cargar
+    await this.paymentService.checkAndRevokeExpiredPayments();
     await this.loadPaymentRequests();
     this.loadProUsers();
   }
@@ -233,6 +355,12 @@ export class AdminComponent implements OnInit {
   updateCounts() {
     this.pendingCount = this.paymentRequests.filter(r => r.status === 'pending').length;
     this.approvedCount = this.paymentRequests.filter(r => r.status === 'approved').length;
+    this.rejectedCount = this.paymentRequests.filter(r => r.status === 'rejected').length;
+    this.revokedCount = this.paymentRequests.filter(r => r.status === 'revoked').length;
+  }
+
+  getRequestsByStatus(status: 'pending' | 'approved' | 'rejected' | 'revoked'): PaymentRequest[] {
+    return this.paymentRequests.filter(r => r.status === status);
   }
 
   async approvePayment(request: PaymentRequest) {
@@ -359,13 +487,18 @@ export class AdminComponent implements OnInit {
       // Revocar plan Pro
       this.planService.revokeProPlan(userEmail);
       
-      // También actualizar el estado en las solicitudes de pago aprobadas
+      // Actualizar el estado de las solicitudes de pago aprobadas a "revoked"
       const requests = await this.paymentService.getAllPaymentRequests();
       const userRequests = requests.filter(r => r.user_email === userEmail && r.status === 'approved');
       
-      // Marcar las solicitudes como rechazadas (opcional, o mantenerlas como aprobadas pero sin efecto)
-      // Por ahora solo revocamos el acceso
+      // Marcar todas las solicitudes aprobadas de este usuario como revocadas
+      for (const request of userRequests) {
+        if (request.id) {
+          await this.paymentService.updatePaymentRequestStatus(request.id, 'revoked');
+        }
+      }
       
+      await this.loadPaymentRequests();
       this.loadProUsers();
       
       await Swal.fire({
@@ -379,6 +512,57 @@ export class AdminComponent implements OnInit {
         confirmButtonText: 'Aceptar',
         confirmButtonColor: '#6b7280'
       });
+    }
+  }
+
+  async revokePaymentRequest(request: PaymentRequest) {
+    const result = await Swal.fire({
+      title: '¿Revocar esta solicitud?',
+      html: `
+        <p class="mb-4">Se revocará el acceso al Plan Pro para este usuario y la solicitud cambiará a estado "Revocado".</p>
+        <div class="text-left text-sm text-gray-600">
+          <p><strong>Usuario:</strong> ${request.user_name}</p>
+          <p><strong>Email:</strong> ${request.user_email}</p>
+        </div>
+        <p class="mt-4 text-xs text-red-600">⚠️ El usuario perderá acceso a favoritos, historial y filtros avanzados.</p>
+      `,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, revocar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#f97316',
+      cancelButtonColor: '#6b7280'
+    });
+
+    if (result.isConfirmed) {
+      if (request.id) {
+        // Cambiar estado de la solicitud a "revoked"
+        const success = await this.paymentService.updatePaymentRequestStatus(request.id, 'revoked');
+        
+        if (success) {
+          // Revocar plan Pro del usuario
+          this.planService.revokeProPlan(request.user_email);
+          
+          await this.loadPaymentRequests();
+          this.loadProUsers();
+          
+          await Swal.fire({
+            title: 'Solicitud revocada',
+            text: 'El acceso al Plan Pro ha sido revocado para este usuario.',
+            icon: 'success',
+            confirmButtonText: 'Aceptar',
+            confirmButtonColor: '#f97316'
+          });
+        } else {
+          await Swal.fire({
+            title: 'Error',
+            text: 'No se pudo revocar la solicitud. Inténtalo nuevamente.',
+            icon: 'error',
+            confirmButtonText: 'Aceptar',
+            confirmButtonColor: '#dc2626'
+          });
+        }
+      }
     }
   }
 }

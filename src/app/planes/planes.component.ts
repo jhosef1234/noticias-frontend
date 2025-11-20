@@ -233,7 +233,56 @@ import Swal from 'sweetalert2';
       </div>
     </div>
   `,
-  styles: []
+  styles: [`
+    /* Estilos personalizados para SweetAlert2 */
+    :host ::ng-deep .swal2-popup-custom {
+      border-radius: 20px !important;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15) !important;
+    }
+
+    :host ::ng-deep .swal2-title-custom {
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+
+    :host ::ng-deep .swal2-html-container-custom {
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+
+    :host ::ng-deep .swal2-confirm-custom {
+      background: linear-gradient(135deg, #9333ea 0%, #7c3aed 100%) !important;
+      border: none !important;
+      border-radius: 12px !important;
+      padding: 14px 32px !important;
+      font-size: 16px !important;
+      font-weight: 600 !important;
+      box-shadow: 0 4px 15px rgba(147, 51, 234, 0.4) !important;
+      transition: all 0.3s ease !important;
+    }
+
+    :host ::ng-deep .swal2-confirm-custom:hover {
+      transform: translateY(-2px) !important;
+      box-shadow: 0 6px 20px rgba(147, 51, 234, 0.5) !important;
+    }
+
+    :host ::ng-deep .swal2-cancel-custom {
+      background: #f1f5f9 !important;
+      color: #64748b !important;
+      border: 2px solid #e2e8f0 !important;
+      border-radius: 12px !important;
+      padding: 14px 32px !important;
+      font-size: 16px !important;
+      font-weight: 600 !important;
+      transition: all 0.3s ease !important;
+    }
+
+    :host ::ng-deep .swal2-cancel-custom:hover {
+      background: #e2e8f0 !important;
+      border-color: #cbd5e0 !important;
+      transform: translateY(-2px) !important;
+    }
+  `]
 })
 export class PlanesComponent implements OnInit {
   planActual: PlanType = 'free';
@@ -284,24 +333,86 @@ export class PlanesComponent implements OnInit {
       }
 
       Swal.fire({
-        title: '¿Actualizar a Plan Pro?',
+        title: '<div style="font-size: 28px; font-weight: 700; color: #1e293b; margin-bottom: 8px;">✨ ¿Actualizar a Plan Pro?</div>',
         html: `
-          <p class="mb-4">Al actualizar a Plan Pro obtendrás:</p>
-          <ul class="text-left list-disc list-inside mb-4 space-y-2">
-            <li>Guardar noticias en favoritos</li>
-            <li>Historial de lectura</li>
-            <li>Filtros avanzados</li>
-            <li>Soporte prioritario</li>
-          </ul>
-          <p class="text-sm text-gray-600 mb-4">Precio: $9.99/mes</p>
-          <p class="text-xs text-gray-500">Serás redirigido al formulario de pago.</p>
+          <div style="text-align: center; padding: 20px 0;">
+            <div style="background: linear-gradient(135deg, #9333ea 0%, #7c3aed 100%); width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 25px rgba(147, 51, 234, 0.3);">
+              <svg style="width: 45px; height: 45px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
+              </svg>
+            </div>
+            <p style="font-size: 18px; color: #475569; margin-bottom: 24px; font-weight: 500;">
+              Al actualizar a <span style="color: #9333ea; font-weight: 600;">Plan Pro</span> obtendrás:
+            </p>
+            <div style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border-radius: 16px; padding: 24px; margin: 20px 0; border: 2px solid #e2e8f0;">
+              <div style="text-align: left; space-y: 12px;">
+                <div style="display: flex; align-items: center; margin-bottom: 12px; padding: 10px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                  <div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 12px; flex-shrink: 0;">
+                    <svg style="width: 18px; height: 18px; color: white;" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
+                    </svg>
+                  </div>
+                  <span style="font-size: 15px; color: #334155; font-weight: 500;">Guardar noticias en favoritos</span>
+                </div>
+                <div style="display: flex; align-items: center; margin-bottom: 12px; padding: 10px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                  <div style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 12px; flex-shrink: 0;">
+                    <svg style="width: 18px; height: 18px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                  </div>
+                  <span style="font-size: 15px; color: #334155; font-weight: 500;">Historial de lectura</span>
+                </div>
+                <div style="display: flex; align-items: center; margin-bottom: 12px; padding: 10px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                  <div style="background: linear-gradient(135deg, #9333ea 0%, #7c3aed 100%); width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 12px; flex-shrink: 0;">
+                    <svg style="width: 18px; height: 18px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
+                    </svg>
+                  </div>
+                  <span style="font-size: 15px; color: #334155; font-weight: 500;">Filtros avanzados</span>
+                </div>
+                <div style="display: flex; align-items: center; padding: 10px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                  <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 12px; flex-shrink: 0;">
+                    <svg style="width: 18px; height: 18px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"/>
+                    </svg>
+                  </div>
+                  <span style="font-size: 15px; color: #334155; font-weight: 500;">Soporte prioritario</span>
+                </div>
+              </div>
+            </div>
+            <div style="background: linear-gradient(135deg, #9333ea 0%, #7c3aed 100%); border-radius: 12px; padding: 16px; margin: 20px 0; box-shadow: 0 4px 15px rgba(147, 51, 234, 0.2);">
+              <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <span style="font-size: 32px; font-weight: 700; color: white;">$9.99</span>
+                <span style="font-size: 16px; color: rgba(255,255,255,0.9);">/mes</span>
+              </div>
+            </div>
+            <p style="font-size: 13px; color: #64748b; margin-top: 16px; font-style: italic; display: flex; align-items: center; justify-content: center; gap: 6px;">
+              <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              Serás redirigido al formulario de pago
+            </p>
+          </div>
         `,
-        icon: 'info',
+        icon: undefined,
         showCancelButton: true,
-        confirmButtonText: 'Continuar al pago',
+        confirmButtonText: '<div style="display: flex; align-items: center; gap: 8px;"><svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg> Continuar al pago</div>',
         cancelButtonText: 'Cancelar',
         confirmButtonColor: '#9333ea',
-        cancelButtonColor: '#6b7280'
+        cancelButtonColor: '#64748b',
+        width: '600px',
+        padding: '2rem',
+        customClass: {
+          popup: 'swal2-popup-custom',
+          title: 'swal2-title-custom',
+          htmlContainer: 'swal2-html-container-custom',
+          confirmButton: 'swal2-confirm-custom',
+          cancelButton: 'swal2-cancel-custom'
+        },
+        buttonsStyling: true,
+        backdrop: true,
+        allowOutsideClick: true,
+        allowEscapeKey: true
       }).then((result) => {
         if (result.isConfirmed) {
           this.router.navigate(['/payment']);

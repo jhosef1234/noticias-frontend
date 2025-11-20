@@ -8,9 +8,10 @@ export interface PaymentRequest {
   payment_date: string;
   payment_time: string;
   plan: 'pro';
-  status: 'pending' | 'approved' | 'rejected';
+  status: 'pending' | 'approved' | 'rejected' | 'revoked';
   created_at?: string;
   approved_at?: string;
+  revoked_at?: string;
 }
 
 @Injectable({
@@ -56,22 +57,19 @@ export class PaymentService {
     }
   }
 
-  async checkPaymentStatus(email: string): Promise<'pending' | 'approved' | 'rejected' | null> {
+  async checkPaymentStatus(email: string): Promise<'pending' | 'approved' | 'rejected' | 'revoked' | null> {
     try {
       const requests: PaymentRequest[] = JSON.parse(localStorage.getItem('payment_requests') || '[]');
-      const approvedRequest = requests
-        .filter(r => r.user_email === email && r.status === 'approved')
-        .sort((a, b) => new Date(b.created_at || '').getTime() - new Date(a.created_at || '').getTime())[0];
       
-      if (approvedRequest) return 'approved';
+      // Obtener todas las solicitudes del usuario ordenadas por fecha (más reciente primero)
+      const userRequests = requests
+        .filter(r => r.user_email === email)
+        .sort((a, b) => new Date(b.created_at || '').getTime() - new Date(a.created_at || '').getTime());
       
-      const pendingRequest = requests
-        .filter(r => r.user_email === email && r.status === 'pending')
-        .sort((a, b) => new Date(b.created_at || '').getTime() - new Date(a.created_at || '').getTime())[0];
+      if (userRequests.length === 0) return null;
       
-      if (pendingRequest) return 'pending';
-      
-      return null;
+      // Retornar el estado de la solicitud más reciente
+      return userRequests[0].status;
     } catch (error: any) {
       console.error('Error checking payment status:', error);
       return null;
@@ -90,7 +88,7 @@ export class PaymentService {
     }
   }
 
-  async updatePaymentRequestStatus(id: number, status: 'approved' | 'rejected'): Promise<boolean> {
+  async updatePaymentRequestStatus(id: number, status: 'approved' | 'rejected' | 'revoked'): Promise<boolean> {
     try {
       const requests: PaymentRequest[] = JSON.parse(localStorage.getItem('payment_requests') || '[]');
       const updated = requests.map(r => {
@@ -98,7 +96,8 @@ export class PaymentService {
           return {
             ...r,
             status,
-            approved_at: status === 'approved' ? new Date().toISOString() : r.approved_at
+            approved_at: status === 'approved' ? new Date().toISOString() : r.approved_at,
+            revoked_at: status === 'revoked' ? new Date().toISOString() : r.revoked_at
           };
         }
         return r;
@@ -117,6 +116,16 @@ export class PaymentService {
         }
       }
       
+      // Si se revoca, remover el email de la lista de usuarios Pro
+      if (status === 'revoked') {
+        const revokedRequest = requests.find(r => r.id === id);
+        if (revokedRequest) {
+          const proUsers = JSON.parse(localStorage.getItem('pro_users') || '[]');
+          const updatedProUsers = proUsers.filter((email: string) => email !== revokedRequest.user_email);
+          localStorage.setItem('pro_users', JSON.stringify(updatedProUsers));
+        }
+      }
+      
       return true;
     } catch (error: any) {
       console.error('Error updating payment request:', error);
@@ -127,6 +136,53 @@ export class PaymentService {
   // Obtener todos los usuarios con plan Pro
   getProUsers(): string[] {
     return JSON.parse(localStorage.getItem('pro_users') || '[]');
+  }
+
+  /**
+   * Verifica si un pago aprobado ha expirado (1 mes desde la aprobación)
+   * Retorna true si ha pasado más de 1 mes desde approved_at
+   */
+  isPaymentExpired(approvedAt?: string): boolean {
+    if (!approvedAt) return false;
+    
+    const approvedDate = new Date(approvedAt);
+    const now = new Date();
+    
+    // Calcular la diferencia en milisegundos
+    const diffTime = now.getTime() - approvedDate.getTime();
+    const diffDays = diffTime / (1000 * 60 * 60 * 24);
+    
+    // Si han pasado más de 30 días, está expirado
+    return diffDays > 30;
+  }
+
+  /**
+   * Verifica y revoca automáticamente todos los pagos aprobados que hayan expirado
+   * Retorna el número de pagos revocados
+   */
+  async checkAndRevokeExpiredPayments(): Promise<number> {
+    try {
+      const requests: PaymentRequest[] = JSON.parse(localStorage.getItem('payment_requests') || '[]');
+      let revokedCount = 0;
+      
+      // Filtrar solo los aprobados que no estén ya revocados
+      const approvedRequests = requests.filter(r => r.status === 'approved' && r.approved_at);
+      
+      for (const request of approvedRequests) {
+        if (this.isPaymentExpired(request.approved_at)) {
+          // Revocar el pago
+          if (request.id) {
+            await this.updatePaymentRequestStatus(request.id, 'revoked');
+            revokedCount++;
+          }
+        }
+      }
+      
+      return revokedCount;
+    } catch (error: any) {
+      console.error('Error checking expired payments:', error);
+      return 0;
+    }
   }
 
   private async sendNotificationEmail(paymentRequest: PaymentRequest): Promise<void> {
