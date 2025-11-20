@@ -127,7 +127,7 @@ export interface Noticia {
                 Planes
               </button>
               
-              <!-- Botón de Login/Logout -->
+              <!-- Botón de Login -->
               <button
                 *ngIf="!estaAutenticado"
                 (click)="irALogin()"
@@ -139,16 +139,78 @@ export interface Noticia {
                 Iniciar Sesión
               </button>
               
-              <button
-                *ngIf="estaAutenticado"
-                (click)="cerrarSesion()"
-                class="px-4 py-2 bg-white text-red-600 text-sm font-semibold rounded-full hover:bg-red-50 transition-colors shadow-lg flex items-center gap-2 whitespace-nowrap"
-              >
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-                </svg>
-                Cerrar Sesión
-              </button>
+              <!-- Perfil y Logout cuando está autenticado -->
+              <div *ngIf="estaAutenticado" class="flex items-center gap-2 relative">
+                <!-- Avatar del usuario -->
+                <button
+                  (click)="mostrandoPerfil = !mostrandoPerfil"
+                  class="relative w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm shadow-lg hover:shadow-xl transition-all transform hover:scale-110 border-2 border-white"
+                  [title]="obtenerNombreUsuario()"
+                >
+                  {{ obtenerInicialUsuario() }}
+                </button>
+                
+                <!-- Dropdown de Perfil - Simple -->
+                <div
+                  *ngIf="mostrandoPerfil"
+                  (click)="$event.stopPropagation()"
+                  class="absolute top-12 right-0 w-80 bg-white rounded-lg shadow-2xl border border-gray-200 z-50 overflow-hidden"
+                  style="margin-top: 0.5rem;"
+                >
+                  <!-- Header del perfil -->
+                  <div class="p-4 border-b border-gray-200">
+                    <div class="flex items-center justify-between mb-2">
+                      <p class="text-sm font-medium text-gray-900">{{ usuarioActual?.email }}</p>
+                      <button
+                        (click)="mostrandoPerfil = false"
+                        class="text-gray-400 hover:text-gray-600 transition-colors"
+                        title="Cerrar"
+                      >
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                      </button>
+                    </div>
+                    <div class="flex items-center gap-3">
+                      <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg">
+                        {{ obtenerInicialUsuario() }}
+                      </div>
+                      <div class="flex-1 min-w-0">
+                        <p class="font-semibold text-base text-gray-900 truncate">{{ obtenerNombreUsuario() }}</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- Información del Plan -->
+                  <div class="p-4">
+                    <div class="flex items-center justify-between mb-1">
+                      <span class="text-sm font-medium text-gray-700">Plan:</span>
+                      <span
+                        class="px-3 py-1 rounded-full text-xs font-bold"
+                        [class.bg-purple-100]="planService.isPro()"
+                        [class.text-purple-800]="planService.isPro()"
+                        [class.bg-blue-100]="!planService.isPro()"
+                        [class.text-blue-800]="!planService.isPro()"
+                      >
+                        {{ planService.isPro() ? 'PRO' : 'FREE' }}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <!-- Cerrar Sesión -->
+                  <div class="p-2 border-t border-gray-200">
+                    <button
+                      (click)="cerrarSesion(); mostrandoPerfil = false"
+                      class="w-full px-4 py-2 text-red-600 text-sm font-medium rounded-lg hover:bg-red-50 transition-colors flex items-center justify-center gap-2"
+                    >
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                      </svg>
+                      Cerrar Sesión
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -245,7 +307,7 @@ export interface Noticia {
                     Planes
                   </button>
                   
-                  <!-- Botón de Login/Logout -->
+                  <!-- Botón de Login -->
                   <button
                     *ngIf="!estaAutenticado"
                     (click)="irALogin()"
@@ -257,16 +319,80 @@ export interface Noticia {
                     Iniciar Sesión
                   </button>
                   
-                  <button
-                    *ngIf="estaAutenticado"
-                    (click)="cerrarSesion()"
-                    class="px-4 py-2 bg-white text-red-600 text-sm font-semibold rounded-full hover:bg-red-50 transition-colors shadow-lg flex items-center gap-2"
-                  >
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-                    </svg>
-                    Cerrar Sesión
-                  </button>
+                  <!-- Perfil y Logout cuando está autenticado - Mobile -->
+                  <div *ngIf="estaAutenticado" class="flex items-center gap-2 relative">
+                    <!-- Avatar del usuario -->
+                    <button
+                      (click)="mostrandoPerfil = !mostrandoPerfil"
+                      class="relative w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm shadow-lg hover:shadow-xl transition-all transform hover:scale-110 border-2 border-white"
+                      [title]="obtenerNombreUsuario()"
+                    >
+                      {{ obtenerInicialUsuario() }}
+                    </button>
+                    
+                    <!-- Dropdown de Perfil - Mobile - Simple -->
+                    <div
+                      *ngIf="mostrandoPerfil"
+                      (click)="$event.stopPropagation()"
+                      class="fixed inset-0 z-50 flex items-start justify-end pt-16 px-4 sm:absolute sm:inset-auto sm:top-12 sm:right-0 sm:pt-0 sm:px-0"
+                      (click)="mostrandoPerfil = false"
+                    >
+                      <div class="w-full max-w-xs bg-white rounded-lg shadow-2xl border border-gray-200 overflow-hidden">
+                        <!-- Header del perfil -->
+                        <div class="p-4 border-b border-gray-200">
+                          <div class="flex items-center justify-between mb-2">
+                            <p class="text-sm font-medium text-gray-900">{{ usuarioActual?.email }}</p>
+                            <button
+                              (click)="mostrandoPerfil = false"
+                              class="text-gray-400 hover:text-gray-600 transition-colors"
+                              title="Cerrar"
+                            >
+                              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                              </svg>
+                            </button>
+                          </div>
+                          <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg">
+                              {{ obtenerInicialUsuario() }}
+                            </div>
+                            <div class="flex-1 min-w-0">
+                              <p class="font-semibold text-base text-gray-900 truncate">{{ obtenerNombreUsuario() }}</p>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <!-- Información del Plan -->
+                        <div class="p-4">
+                          <div class="flex items-center justify-between mb-1">
+                            <span class="text-sm font-medium text-gray-700">Plan:</span>
+                            <span
+                              class="px-3 py-1 rounded-full text-xs font-bold"
+                              [class.bg-purple-100]="planService.isPro()"
+                              [class.text-purple-800]="planService.isPro()"
+                              [class.bg-blue-100]="!planService.isPro()"
+                              [class.text-blue-800]="!planService.isPro()"
+                            >
+                              {{ planService.isPro() ? 'PRO' : 'FREE' }}
+                            </span>
+                          </div>
+                        </div>
+                        
+                        <!-- Cerrar Sesión -->
+                        <div class="p-2 border-t border-gray-200">
+                          <button
+                            (click)="cerrarSesion(); mostrandoPerfil = false"
+                            class="w-full px-4 py-2 text-red-600 text-sm font-medium rounded-lg hover:bg-red-50 transition-colors flex items-center justify-center gap-2"
+                          >
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                            </svg>
+                            Cerrar Sesión
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -877,6 +1003,8 @@ export class PortalNoticiasComponent implements OnInit, OnDestroy {
   error: string = '';
   estaAutenticado: boolean = false;
   mostrandoDialogoBusqueda: boolean = false;
+  mostrandoPerfil: boolean = false;
+  usuarioActual: any = null;
 
   // Para usar Math en el template
   Math = Math;
@@ -915,6 +1043,7 @@ export class PortalNoticiasComponent implements OnInit, OnDestroy {
     // Suscribirse a cambios en la autenticación
     this.authSubscription = this.authService.currentUser.subscribe(user => {
       this.estaAutenticado = user !== null;
+      this.usuarioActual = user;
       
       // Actualizar email cuando cambia el usuario
       if (user?.email) {
@@ -925,10 +1054,14 @@ export class PortalNoticiasComponent implements OnInit, OnDestroy {
         localStorage.removeItem('current_user_email');
         // Si no hay usuario, forzar Free
         this.planService.setPlan('free');
+        this.usuarioActual = null;
       }
       
       // El cambio se detectará automáticamente
     });
+    
+    // Inicializar usuario actual
+    this.usuarioActual = this.authService.currentUserValue;
     
     this.cargarNoticias();
   }
@@ -1497,5 +1630,40 @@ export class PortalNoticiasComponent implements OnInit, OnDestroy {
     if (this.planService.isPro()) {
       this.storageService.agregarAlHistorial(noticia);
     }
+  }
+
+  // Métodos para Perfil
+  obtenerInicialUsuario(): string {
+    if (!this.usuarioActual?.email) return '?';
+    
+    const email = this.usuarioActual.email;
+    const nombre = this.usuarioActual.user_metadata?.full_name || email;
+    
+    // Si tiene nombre completo, usar las iniciales
+    if (nombre && nombre !== email) {
+      const partes = nombre.split(' ');
+      if (partes.length > 1) {
+        return (partes[0][0] + partes[partes.length - 1][0]).toUpperCase();
+      }
+      return nombre[0].toUpperCase();
+    }
+    
+    // Si no, usar la primera letra del email
+    return email[0].toUpperCase();
+  }
+
+  obtenerNombreUsuario(): string {
+    if (!this.usuarioActual) return 'Usuario';
+    
+    const nombre = this.usuarioActual.user_metadata?.full_name;
+    if (nombre) {
+      return nombre;
+    }
+    
+    return this.usuarioActual.email || 'Usuario';
+  }
+
+  irAPlanes() {
+    this.router.navigate(['/planes']);
   }
 }
