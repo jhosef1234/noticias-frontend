@@ -30,8 +30,13 @@ export class AuthService {
       console.log('Auth state changed:', event);
       if (session?.user) {
         this.currentUserSubject.next(session.user);
+        // Guardar email del usuario actual
+        if (session.user.email) {
+          localStorage.setItem('current_user_email', session.user.email);
+        }
       } else {
         this.currentUserSubject.next(null);
+        localStorage.removeItem('current_user_email');
       }
     });
   }
@@ -44,6 +49,10 @@ export class AuthService {
       const { data: { session } } = await this.supabase.auth.getSession();
       if (session?.user) {
         this.currentUserSubject.next(session.user);
+        // Guardar email del usuario actual
+        if (session.user.email) {
+          localStorage.setItem('current_user_email', session.user.email);
+        }
       }
     } catch (error) {
       console.error('Error checking session:', error);
@@ -87,6 +96,12 @@ export class AuthService {
       if (error) throw error;
 
       this.currentUserSubject.next(data.user);
+      
+      // Guardar email del usuario actual para verificar plan Pro
+      if (data.user?.email) {
+        localStorage.setItem('current_user_email', data.user.email);
+      }
+      
       return { success: true, data, error: null };
     } catch (error: any) {
       console.error('Error en signin:', error);

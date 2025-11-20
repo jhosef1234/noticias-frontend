@@ -1,13 +1,15 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { AuthService } from '../auth/auth.service';
+import { StorageService } from '../services/storage.service';
+import { PlanService } from '../services/plan.service';
 import { Subscription } from 'rxjs';
 import Swal from 'sweetalert2';
 
-interface Noticia {
+export interface Noticia {
   id: number;
   fuente: string;
   link: string;
@@ -26,7 +28,7 @@ interface Noticia {
 @Component({
   selector: 'app-portal-noticias',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   template: `
     <div class="min-h-screen bg-gray-50">
       <!-- Header -->
@@ -81,8 +83,51 @@ interface Noticia {
               </div>
             </div>
             
-            <!-- Botón de Login/Logout - Right -->
-            <div class="flex justify-end">
+            <!-- Botones de Favoritos, Historial, Planes y Login/Logout - Right -->
+            <div class="flex items-center gap-2">
+              <!-- Botón Favoritos -->
+              <button
+                routerLink="/favoritos"
+                [disabled]="!planService.isPro()"
+                [class.opacity-50]="!planService.isPro()"
+                [class.cursor-not-allowed]="!planService.isPro()"
+                class="px-3 py-2 bg-white text-yellow-600 text-sm font-semibold rounded-full hover:bg-yellow-50 transition-colors shadow-lg flex items-center gap-2 whitespace-nowrap"
+                [title]="planService.isPro() ? 'Mis favoritos' : 'Actualiza a Pro para usar favoritos'"
+              >
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
+                </svg>
+                Favoritos
+              </button>
+              
+              <!-- Botón Historial -->
+              <button
+                routerLink="/historial"
+                [disabled]="!planService.isPro()"
+                [class.opacity-50]="!planService.isPro()"
+                [class.cursor-not-allowed]="!planService.isPro()"
+                class="px-3 py-2 bg-white text-purple-600 text-sm font-semibold rounded-full hover:bg-purple-50 transition-colors shadow-lg flex items-center gap-2 whitespace-nowrap"
+                [title]="planService.isPro() ? 'Historial' : 'Actualiza a Pro para usar historial'"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                Historial
+              </button>
+              
+              <!-- Botón Planes -->
+              <button
+                routerLink="/planes"
+                class="px-3 py-2 bg-white text-indigo-600 text-sm font-semibold rounded-full hover:bg-indigo-50 transition-colors shadow-lg flex items-center gap-2 whitespace-nowrap"
+                title="Ver planes"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
+                </svg>
+                Planes
+              </button>
+              
+              <!-- Botón de Login/Logout -->
               <button
                 *ngIf="!estaAutenticado"
                 (click)="irALogin()"
@@ -156,8 +201,51 @@ interface Noticia {
                   </button>
                 </div>
                 
-                <!-- Botón de Login/Logout - Mobile -->
-                <div class="flex justify-end">
+                <!-- Botones de Favoritos, Historial, Planes y Login/Logout - Mobile -->
+                <div class="flex flex-wrap justify-end gap-2">
+                  <!-- Botón Favoritos -->
+                  <button
+                    routerLink="/favoritos"
+                    [disabled]="!planService.isPro()"
+                    [class.opacity-50]="!planService.isPro()"
+                    [class.cursor-not-allowed]="!planService.isPro()"
+                    class="px-3 py-2 bg-white text-yellow-600 text-sm font-semibold rounded-full hover:bg-yellow-50 transition-colors shadow-lg flex items-center gap-2"
+                    [title]="planService.isPro() ? 'Mis favoritos' : 'Actualiza a Pro para usar favoritos'"
+                  >
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
+                    </svg>
+                    Favoritos
+                  </button>
+                  
+                  <!-- Botón Historial -->
+                  <button
+                    routerLink="/historial"
+                    [disabled]="!planService.isPro()"
+                    [class.opacity-50]="!planService.isPro()"
+                    [class.cursor-not-allowed]="!planService.isPro()"
+                    class="px-3 py-2 bg-white text-purple-600 text-sm font-semibold rounded-full hover:bg-purple-50 transition-colors shadow-lg flex items-center gap-2"
+                    [title]="planService.isPro() ? 'Historial' : 'Actualiza a Pro para usar historial'"
+                  >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Historial
+                  </button>
+                  
+                  <!-- Botón Planes -->
+                  <button
+                    routerLink="/planes"
+                    class="px-3 py-2 bg-white text-indigo-600 text-sm font-semibold rounded-full hover:bg-indigo-50 transition-colors shadow-lg flex items-center gap-2"
+                    title="Ver planes"
+                  >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
+                    </svg>
+                    Planes
+                  </button>
+                  
+                  <!-- Botón de Login/Logout -->
                   <button
                     *ngIf="!estaAutenticado"
                     (click)="irALogin()"
@@ -190,7 +278,19 @@ interface Noticia {
         <div class="flex flex-col lg:flex-row gap-6">
           <!-- Sidebar Filters -->
           <aside class="w-full lg:w-64 flex-shrink-0">
-            <div class="bg-white rounded-lg shadow-md p-6 sticky top-6 max-h-[calc(100vh-3rem)] overflow-y-auto sidebar-scroll">
+            <div class="bg-white rounded-lg shadow-md p-6 sticky top-6 max-h-[calc(100vh-3rem)] overflow-y-auto sidebar-scroll" [class.opacity-50]="!planService.isPro()" [class.pointer-events-none]="!planService.isPro()">
+              <!-- Mensaje para usuarios Free -->
+              <div *ngIf="!planService.isPro()" class="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <p class="text-xs text-yellow-800 mb-2">
+                  <strong>Plan Free:</strong> Los filtros están disponibles en el Plan Pro.
+                </p>
+                <button
+                  routerLink="/planes"
+                  class="text-xs text-yellow-700 hover:text-yellow-900 font-semibold underline"
+                >
+                  Actualizar a Pro →
+                </button>
+              </div>
               <h2 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
@@ -459,18 +559,39 @@ interface Noticia {
                         {{ formatearFecha(noticiaDestacada.fecha) }}
                       </time>
                       
-                      <a 
-                        [href]="estaAutenticado ? noticiaDestacada.link : '#'" 
-                        (click)="verificarYAcceder(noticiaDestacada.link, $event)"
-                        [attr.target]="estaAutenticado ? '_blank' : null"
-                        [attr.rel]="estaAutenticado ? 'noopener noreferrer' : null"
-                        class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors cursor-pointer"
-                      >
-                        Leer más
-                        <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
-                        </svg>
-                      </a>
+                      <div class="flex items-center gap-2">
+                        <button
+                          (click)="toggleFavorito(noticiaDestacada)"
+                          [disabled]="!planService.isPro()"
+                          class="p-2 rounded-lg transition-colors"
+                          [class.bg-yellow-100]="esFavorito(noticiaDestacada.id) && planService.isPro()"
+                          [class.text-yellow-600]="esFavorito(noticiaDestacada.id) && planService.isPro()"
+                          [class.bg-gray-100]="!esFavorito(noticiaDestacada.id) || !planService.isPro()"
+                          [class.text-gray-400]="!planService.isPro()"
+                          [class.text-gray-600]="planService.isPro() && !esFavorito(noticiaDestacada.id)"
+                          [class.hover:bg-yellow-200]="esFavorito(noticiaDestacada.id) && planService.isPro()"
+                          [class.hover:bg-gray-200]="planService.isPro() && !esFavorito(noticiaDestacada.id)"
+                          [class.cursor-not-allowed]="!planService.isPro()"
+                          [title]="!planService.isPro() ? 'Actualiza a Pro para guardar favoritos' : (esFavorito(noticiaDestacada.id) ? 'Quitar de favoritos' : 'Agregar a favoritos')"
+                        >
+                          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path *ngIf="esFavorito(noticiaDestacada.id) && planService.isPro()" fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
+                            <path *ngIf="!esFavorito(noticiaDestacada.id) || !planService.isPro()" fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" fill-opacity="0.3"/>
+                          </svg>
+                        </button>
+                        <a 
+                          [href]="noticiaDestacada.link" 
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          (click)="agregarAlHistorial(noticiaDestacada)"
+                          class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors cursor-pointer"
+                        >
+                          Leer más
+                          <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                          </svg>
+                        </a>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -499,6 +620,22 @@ interface Noticia {
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
                       </svg>
                     </div>
+                    <!-- Botón Favorito -->
+                    <button
+                      (click)="toggleFavorito(noticia)"
+                      class="absolute top-2 right-2 p-2 rounded-full transition-colors shadow-lg"
+                      [class.bg-yellow-500]="esFavorito(noticia.id)"
+                      [class.text-white]="esFavorito(noticia.id)"
+                      [class.bg-white]="!esFavorito(noticia.id)"
+                      [class.text-gray-600]="!esFavorito(noticia.id)"
+                      [class.hover:bg-yellow-600]="esFavorito(noticia.id)"
+                      [class.hover:bg-gray-100]="!esFavorito(noticia.id)"
+                      [title]="esFavorito(noticia.id) ? 'Quitar de favoritos' : 'Agregar a favoritos'"
+                    >
+                      <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
+                      </svg>
+                    </button>
                   </div>
                   
                   <!-- Content -->
@@ -541,10 +678,10 @@ interface Noticia {
                     <!-- Read More Button -->
                     <div class="flex justify-end">
                       <a 
-                        [href]="estaAutenticado ? noticia.link : '#'" 
-                        (click)="verificarYAcceder(noticia.link, $event)"
-                        [attr.target]="estaAutenticado ? '_blank' : null"
-                        [attr.rel]="estaAutenticado ? 'noopener noreferrer' : null"
+                        [href]="noticia.link" 
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        (click)="agregarAlHistorial(noticia)"
                         class="inline-flex items-center text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors duration-200 cursor-pointer"
                       >
                         Leer más
@@ -706,6 +843,7 @@ interface Noticia {
 export class PortalNoticiasComponent implements OnInit, OnDestroy {
   private supabase: SupabaseClient;
   private authSubscription?: Subscription;
+  private planSubscription?: Subscription;
   
   // Datos
   noticias: Noticia[] = [];
@@ -745,7 +883,9 @@ export class PortalNoticiasComponent implements OnInit, OnDestroy {
 
   constructor(
     private readonly router: Router,
-    private readonly authService: AuthService
+    private readonly authService: AuthService,
+    private readonly storageService: StorageService,
+    public readonly planService: PlanService
   ) {
     this.supabase = createClient(
       'https://aplusyghdeuyewrstikg.supabase.co',
@@ -757,9 +897,37 @@ export class PortalNoticiasComponent implements OnInit, OnDestroy {
     // Verificar estado de autenticación
     this.estaAutenticado = this.authService.isAuthenticated();
     
+    // Guardar email del usuario actual si está autenticado
+    const currentUser = this.authService.currentUserValue;
+    if (currentUser?.email) {
+      localStorage.setItem('current_user_email', currentUser.email);
+    }
+    
+    // Verificar plan inicial
+    this.planService.isPro();
+    
+    // Suscribirse a cambios en el plan (opcional, para actualización en tiempo real)
+    this.planSubscription = this.planService.plan$.subscribe(() => {
+      // La UI se actualizará automáticamente cuando cambie el plan
+      // No necesitamos forzar detectChanges aquí ya que Angular lo hace automáticamente
+    });
+    
     // Suscribirse a cambios en la autenticación
     this.authSubscription = this.authService.currentUser.subscribe(user => {
       this.estaAutenticado = user !== null;
+      
+      // Actualizar email cuando cambia el usuario
+      if (user?.email) {
+        localStorage.setItem('current_user_email', user.email);
+        // Verificar plan después de actualizar email
+        this.planService.isPro();
+      } else {
+        localStorage.removeItem('current_user_email');
+        // Si no hay usuario, forzar Free
+        this.planService.setPlan('free');
+      }
+      
+      // El cambio se detectará automáticamente
     });
     
     this.cargarNoticias();
@@ -768,6 +936,9 @@ export class PortalNoticiasComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     if (this.authSubscription) {
       this.authSubscription.unsubscribe();
+    }
+    if (this.planSubscription) {
+      this.planSubscription.unsubscribe();
     }
   }
 
@@ -867,6 +1038,29 @@ export class PortalNoticiasComponent implements OnInit, OnDestroy {
   }
 
   aplicarFiltros() {
+    // Si es plan Free, no aplicar filtros (solo mostrar todas las noticias)
+    if (!this.planService.isPro()) {
+      // Para usuarios Free, solo permitir ordenar por fecha
+      let noticiasFiltradas = [...this.noticias];
+      
+      // Ordenar
+      if (this.ordenSeleccionado === 'recientes') {
+        noticiasFiltradas.sort((a, b) => 
+          new Date(b.fecha).getTime() - new Date(a.fecha).getTime()
+        );
+      } else {
+        noticiasFiltradas.sort((a, b) => 
+          new Date(a.fecha).getTime() - new Date(b.fecha).getTime()
+        );
+      }
+      
+      this.noticiasFiltradas = noticiasFiltradas;
+      this.noticiaDestacada = this.noticiasFiltradas.length > 0 ? this.noticiasFiltradas[0] : null;
+      this.calcularPaginacion();
+      return;
+    }
+    
+    // Para usuarios Pro, aplicar todos los filtros
     let noticiasFiltradas = [...this.noticias];
 
     // Filtrar por búsqueda
@@ -1239,5 +1433,69 @@ export class PortalNoticiasComponent implements OnInit, OnDestroy {
     }
     
     return partes.join(' | ');
+  }
+
+  // Métodos para Favoritos
+  esFavorito(noticiaId: number): boolean {
+    return this.storageService.esFavorito(noticiaId);
+  }
+
+  toggleFavorito(noticia: Noticia) {
+    // Verificar si tiene plan Pro
+    if (!this.planService.isPro()) {
+      Swal.fire({
+        title: 'Plan Pro requerido',
+        html: `
+          <p class="mb-4">Para guardar noticias en favoritos necesitas el Plan Pro.</p>
+          <p class="text-sm text-gray-600 mb-4">El Plan Pro incluye:</p>
+          <ul class="text-left list-disc list-inside mb-4 space-y-1 text-sm">
+            <li>Guardar en favoritos</li>
+            <li>Historial de lectura</li>
+            <li>Filtros avanzados</li>
+          </ul>
+        `,
+        icon: 'info',
+        showCancelButton: true,
+        confirmButtonText: 'Ver planes',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#9333ea',
+        cancelButtonColor: '#6b7280'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          this.router.navigate(['/planes']);
+        }
+      });
+      return;
+    }
+
+    if (this.esFavorito(noticia.id)) {
+      this.storageService.eliminarFavorito(noticia.id);
+      Swal.fire({
+        title: 'Eliminado de favoritos',
+        text: 'La noticia ha sido eliminada de tus favoritos.',
+        icon: 'success',
+        confirmButtonText: 'Aceptar',
+        confirmButtonColor: '#2563eb',
+        timer: 2000
+      });
+    } else {
+      this.storageService.agregarFavorito(noticia);
+      Swal.fire({
+        title: 'Agregado a favoritos',
+        text: 'La noticia ha sido agregada a tus favoritos.',
+        icon: 'success',
+        confirmButtonText: 'Aceptar',
+        confirmButtonColor: '#2563eb',
+        timer: 2000
+      });
+    }
+  }
+
+  // Métodos para Historial
+  agregarAlHistorial(noticia: Noticia) {
+    // Solo agregar al historial si tiene plan Pro
+    if (this.planService.isPro()) {
+      this.storageService.agregarAlHistorial(noticia);
+    }
   }
 }

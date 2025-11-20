@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../auth.service';
+import { PlanService } from '../../services/plan.service';
 
 @Component({
   selector: 'app-register',
@@ -244,8 +245,9 @@ export class RegisterComponent {
   successMessage: string = '';
 
   constructor(
-    private authService: AuthService,
-    private router: Router
+    private readonly authService: AuthService,
+    private readonly router: Router,
+    private readonly planService: PlanService
   ) {}
 
   async onSubmit() {
@@ -279,6 +281,8 @@ export class RegisterComponent {
     this.loading = false;
 
     if (result.success) {
+      // Asignar plan Free por defecto
+      this.planService.setPlan('free');
       this.successMessage = '¡Cuenta creada exitosamente! Revisa tu email para confirmar tu cuenta.';
       setTimeout(() => {
         this.router.navigate(['/login']);

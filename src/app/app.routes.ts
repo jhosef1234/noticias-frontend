@@ -18,6 +18,36 @@ export const routes: Routes = [
       import('./auth/register/register.component').then(m => m.RegisterComponent),
   },
   {
+    path: 'forgot-password',
+    loadComponent: () =>
+      import('./auth/forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent),
+  },
+  {
+    path: 'favoritos',
+    loadComponent: () =>
+      import('./favoritos/favoritos.component').then(m => m.FavoritosComponent),
+  },
+  {
+    path: 'historial',
+    loadComponent: () =>
+      import('./historial/historial.component').then(m => m.HistorialComponent),
+  },
+  {
+    path: 'planes',
+    loadComponent: () =>
+      import('./planes/planes.component').then(m => m.PlanesComponent),
+  },
+  {
+    path: 'payment',
+    loadComponent: () =>
+      import('./payment/payment.component').then(m => m.PaymentComponent),
+  },
+  {
+    path: 'admin',
+    loadComponent: () =>
+      import('./admin/admin.component').then(m => m.AdminComponent),
+  },
+  {
     path: 'noticias',
     loadComponent: () =>
       import('./noticias/noticias').then(m => m.PortalNoticiasComponent),
