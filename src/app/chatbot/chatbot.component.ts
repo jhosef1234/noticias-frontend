@@ -636,34 +636,57 @@ export class ChatbotComponent implements OnInit, AfterViewChecked {
 
   private async buscarYListarNoticias(pregunta: string, palabras: string[]): Promise<{ contenido: string; noticias?: NoticiaChatbot[] }> {
     try {
-      // Detectar si se menciona una ciudad, lugar o término específico
+      // Detectar si se menciona una ciudad, lugar, categoría, tema o término específico
       let terminoBusqueda: string | null = null;
+      let tipoBusqueda: 'ciudad' | 'categoria' | 'tema' | 'general' = 'general';
       
-      // Patrones para detectar términos de búsqueda específicos (mejorados)
+      // Lista de ciudades conocidas
+      const ciudadesConocidas = ['lima', 'arequipa', 'cusco', 'trujillo', 'chiclayo', 'piura', 'iquitos', 'huancayo', 'pucallpa', 'tacna', 'juliaca', 'cajamarca', 'ayacucho', 'iquique', 'tarapoto', 'moquegua', 'tumbes', 'puno', 'huaraz', 'ica', 'sullana', 'chincha', 'huanuco', 'ferrenafe', 'chimbote', 'abancay', 'ayaviri', 'azangaro', 'ilave', 'lampa', 'macusani', 'moho', 'pomata', 'putina', 'sandia', 'san antonio de putina', 'san roman', 'yunguyo'];
+      
+      // Lista de categorías conocidas
+      const categoriasConocidas = ['deportes', 'deporte', 'política', 'politica', 'tecnología', 'tecnologia', 'economía', 'economia', 'salud', 'cultura', 'entretenimiento', 'ciencia', 'educación', 'educacion', 'otros', 'delincuencia', 'medio ambiente', 'negocios', 'turismo'];
+      
+      // Patrones para detectar términos de búsqueda específicos (mejorados y más completos)
       const patrones = [
         // "ciudad de juliaca", "ciudad juliaca"
-        /(?:ciudad\s+de\s+|ciudad\s+)([a-záéíóúñü]+(?:\s+[a-záéíóúñü]+)*)/i,
-        // "noticias de juliaca", "noticias sobre juliaca"
-        /(?:noticias?\s+)(?:de|sobre|acerca\s+de|relacionadas?\s+con)\s+([a-záéíóúñü]+(?:\s+[a-záéíóúñü]+)*)/i,
-        // "menciona juliaca", "mencionan juliaca"
-        /(?:menciona|mencionan|aparece|aparecen|habla|hablan)\s+(?:específicamente|especificamente|a|de|sobre)?\s*(?:la\s+)?(?:ciudad\s+de\s+)?([a-záéíóúñü]+(?:\s+[a-záéíóúñü]+)*)/i,
+        { pattern: /(?:ciudad\s+de\s+|ciudad\s+)([a-záéíóúñü]+(?:\s+[a-záéíóúñü]+)*)/i, tipo: 'ciudad' as const },
+        // "noticias de juliaca", "noticias sobre deportes"
+        { pattern: /(?:noticias?\s+)(?:de|sobre|acerca\s+de|relacionadas?\s+con)\s+([a-záéíóúñü]+(?:\s+[a-záéíóúñü]+)*)/i, tipo: 'general' as const },
+        // "menciona juliaca", "mencionan deportes"
+        { pattern: /(?:menciona|mencionan|aparece|aparecen|habla|hablan)\s+(?:específicamente|especificamente|a|de|sobre)?\s*(?:la\s+)?(?:ciudad\s+de\s+)?([a-záéíóúñü]+(?:\s+[a-záéíóúñü]+)*)/i, tipo: 'general' as const },
         // "donde menciona juliaca"
-        /donde\s+(?:menciona|mencionan|aparece|aparecen|habla|hablan)\s+(?:específicamente|especificamente|a|de|sobre)?\s*(?:la\s+)?(?:ciudad\s+de\s+)?([a-záéíóúñü]+(?:\s+[a-záéíóúñü]+)*)/i,
+        { pattern: /donde\s+(?:menciona|mencionan|aparece|aparecen|habla|hablan)\s+(?:específicamente|especificamente|a|de|sobre)?\s*(?:la\s+)?(?:ciudad\s+de\s+)?([a-záéíóúñü]+(?:\s+[a-záéíóúñü]+)*)/i, tipo: 'general' as const },
         // "dame noticias de juliaca"
-        /(?:dame|darme|muestra|muéstrame|listar|lista|quiero|quiero\s+ver)\s+(?:las\s+)?(?:noticias\s+)?(?:donde|que|en\s+que|en\s+las\s+que|de|sobre)\s+(?:menciona|mencionan|aparece|aparecen|habla|hablan|es)?\s+(?:específicamente|especificamente|a|de|sobre)?\s*(?:la\s+)?(?:ciudad\s+de\s+)?([a-záéíóúñü]+(?:\s+[a-záéíóúñü]+)*)/i
+        { pattern: /(?:dame|darme|muestra|muéstrame|listar|lista|quiero|quiero\s+ver)\s+(?:las\s+)?(?:noticias\s+)?(?:donde|que|en\s+que|en\s+las\s+que|de|sobre)\s+(?:menciona|mencionan|aparece|aparecen|habla|hablan|es)?\s+(?:específicamente|especificamente|a|de|sobre)?\s*(?:la\s+)?(?:ciudad\s+de\s+)?([a-záéíóúñü]+(?:\s+[a-záéíóúñü]+)*)/i, tipo: 'general' as const },
+        // "categoría deportes", "de categoría política"
+        { pattern: /(?:categoría|categoria|de\s+categoría|de\s+categoria)\s+([a-záéíóúñü]+(?:\s+[a-záéíóúñü]+)*)/i, tipo: 'categoria' as const },
+        // "tema deportes", "sobre el tema de"
+        { pattern: /(?:tema|temas|sobre\s+el\s+tema\s+de|del\s+tema)\s+([a-záéíóúñü]+(?:\s+[a-záéíóúñü]+)*)/i, tipo: 'tema' as const }
       ];
 
-      for (const patron of patrones) {
-        const match = pregunta.match(patron);
+      for (const { pattern, tipo } of patrones) {
+        const match = pregunta.match(pattern);
         if (match && match[1]) {
           terminoBusqueda = match[1].trim().toLowerCase();
+          tipoBusqueda = tipo;
+          
           // Limpiar palabras comunes que puedan haber sido capturadas
-          const palabrasComunes = ['la', 'el', 'los', 'las', 'de', 'del', 'en', 'a', 'al'];
+          const palabrasComunes = ['la', 'el', 'los', 'las', 'de', 'del', 'en', 'a', 'al', 'un', 'una', 'unos', 'unas'];
           const terminoLimpio = terminoBusqueda.split(/\s+/)
             .filter(p => !palabrasComunes.includes(p) && p.length > 2)
             .join(' ');
+          
           if (terminoLimpio.length > 2) {
             terminoBusqueda = terminoLimpio;
+            
+            // Detectar tipo específico basado en el término encontrado
+            // Usar terminoLimpio directamente ya que sabemos que tiene longitud > 2
+            if (ciudadesConocidas.includes(terminoLimpio)) {
+              tipoBusqueda = 'ciudad';
+            } else if (categoriasConocidas.some(cat => terminoLimpio.includes(cat) || cat.includes(terminoLimpio))) {
+              tipoBusqueda = 'categoria';
+            }
+            
             break;
           }
         }
@@ -671,32 +694,57 @@ export class ChatbotComponent implements OnInit, AfterViewChecked {
 
       // Si no se encontró con patrones, buscar palabras relevantes
       if (!terminoBusqueda) {
-        const palabrasComunes = ['noticias', 'noticia', 'puedes', 'dame', 'darme', 'listar', 'lista', 'muestra', 'muéstrame', 'hay', 'tienes', 'tiene', 'existen', 'existe', 'donde', 'dónde', 'menciona', 'mencionan', 'especificamente', 'específicamente', 'ciudad', 'de', 'la', 'el', 'los', 'las', 'un', 'una', 'este', 'esta', 'hoy', 'ayer', 'semana', 'mes', 'fecha', 'que', 'en', 'a', 'al', 'sobre', 'acerca', 'relacionadas', 'relacionados', 'relacionada', 'relacionado'];
-        
-        // Lista de ciudades conocidas para priorizar
-        const ciudadesConocidas = ['lima', 'arequipa', 'cusco', 'trujillo', 'chiclayo', 'piura', 'iquitos', 'huancayo', 'pucallpa', 'tacna', 'juliaca', 'cajamarca', 'ayacucho', 'iquique', 'tarapoto', 'moquegua', 'tumbes', 'puno', 'huaraz', 'ica', 'sullana', 'chincha', 'huanuco', 'ferrenafe', 'chimbote', 'abancay'];
+        const palabrasComunes = ['noticias', 'noticia', 'puedes', 'dame', 'darme', 'listar', 'lista', 'muestra', 'muéstrame', 'hay', 'tienes', 'tiene', 'existen', 'existe', 'donde', 'dónde', 'menciona', 'mencionan', 'especificamente', 'específicamente', 'ciudad', 'de', 'la', 'el', 'los', 'las', 'un', 'una', 'este', 'esta', 'hoy', 'ayer', 'semana', 'mes', 'fecha', 'que', 'en', 'a', 'al', 'sobre', 'acerca', 'relacionadas', 'relacionados', 'relacionada', 'relacionado', 'mas', 'más', 'populares', 'popular'];
         
         // Primero buscar si alguna palabra es una ciudad conocida
         const ciudadEncontrada = palabras.find(p => ciudadesConocidas.includes(p.toLowerCase()));
         if (ciudadEncontrada) {
           terminoBusqueda = ciudadEncontrada.toLowerCase();
+          tipoBusqueda = 'ciudad';
         } else {
-          // Si no, buscar palabras relevantes
-          const palabrasRelevantes = palabras.filter(p => 
-            p.length > 3 && 
-            !palabrasComunes.includes(p.toLowerCase()) &&
-            !p.match(/^\d+$/) // No números
+          // Buscar si alguna palabra es una categoría conocida
+          const categoriaEncontrada = palabras.find(p => 
+            categoriasConocidas.some(cat => p.toLowerCase().includes(cat) || cat.includes(p.toLowerCase()))
           );
-          
-          if (palabrasRelevantes.length > 0) {
-            terminoBusqueda = palabrasRelevantes.sort((a, b) => b.length - a.length)[0].toLowerCase();
+          if (categoriaEncontrada) {
+            terminoBusqueda = categoriaEncontrada.toLowerCase();
+            tipoBusqueda = 'categoria';
+          } else {
+            // Si no, buscar palabras relevantes (priorizar las más largas y específicas)
+            const palabrasRelevantes = palabras.filter(p => 
+              p.length > 3 && 
+              !palabrasComunes.includes(p.toLowerCase()) &&
+              !p.match(/^\d+$/) // No números
+            );
+            
+            if (palabrasRelevantes.length > 0) {
+              // Ordenar por longitud y priorizar palabras más específicas
+              terminoBusqueda = palabrasRelevantes.sort((a, b) => {
+                // Priorizar palabras más largas
+                if (b.length !== a.length) return b.length - a.length;
+                // Si tienen la misma longitud, priorizar las que no son comunes
+                return 0;
+              })[0].toLowerCase();
+            }
           }
         }
       }
 
-      // Si hay un término de búsqueda específico (ciudad, lugar, etc.), buscar directamente
+      // Si hay un término de búsqueda específico, buscar directamente con el tipo detectado
       if (terminoBusqueda && terminoBusqueda.length > 3) {
-        return await this.buscarNoticiasPorTermino(terminoBusqueda, pregunta);
+        // Si es categoría, usar el método específico
+        if (tipoBusqueda === 'categoria') {
+          const categoriaMatch = categoriasConocidas.find(cat => 
+            terminoBusqueda!.includes(cat) || cat.includes(terminoBusqueda!)
+          );
+          if (categoriaMatch) {
+            const mencionaPopular = pregunta.includes('popular') || pregunta.includes('populares') || pregunta.includes('más popular') || pregunta.includes('mas popular');
+            return await this.buscarNoticiasPorCategoria(categoriaMatch, mencionaPopular);
+          }
+        }
+        
+        // Para ciudades o términos generales, usar búsqueda por término
+        return await this.buscarNoticiasPorTermino(terminoBusqueda, pregunta, tipoBusqueda);
       }
 
       let query = this.supabase
@@ -860,21 +908,16 @@ export class ChatbotComponent implements OnInit, AfterViewChecked {
     }
   }
 
-  private async buscarNoticiasPorTermino(termino: string, preguntaOriginal: string): Promise<{ contenido: string; noticias?: NoticiaChatbot[] }> {
+  private async buscarNoticiasPorTermino(termino: string, preguntaOriginal: string, tipoBusqueda: 'ciudad' | 'categoria' | 'tema' | 'general' = 'general'): Promise<{ contenido: string; noticias?: NoticiaChatbot[] }> {
     try {
       // Buscar en título, contenido, ciudad, departamento y país
       const terminoLower = termino.toLowerCase().trim();
       
-      // Detectar si es una búsqueda de ciudad (explícita o implícita)
-      const esBusquedaCiudadExplicita = preguntaOriginal.includes('ciudad') || preguntaOriginal.includes('ciudad de');
-      
       // Lista de ciudades conocidas en Perú para detectar búsquedas implícitas
       const ciudadesConocidas = ['lima', 'arequipa', 'cusco', 'trujillo', 'chiclayo', 'piura', 'iquitos', 'huancayo', 'pucallpa', 'tacna', 'juliaca', 'cajamarca', 'ayacucho', 'iquique', 'tarapoto', 'moquegua', 'tumbes', 'puno', 'huaraz', 'ica', 'sullana', 'chincha', 'huanuco', 'ferrenafe', 'chimbote', 'abancay', 'ayaviri', 'azangaro', 'ilave', 'lampa', 'macusani', 'moho', 'pomata', 'putina', 'sandia', 'san antonio de putina', 'san roman', 'yunguyo'];
       
-      // Detectar si el término es probablemente una ciudad (está en la lista)
-      const esProbableCiudad = ciudadesConocidas.includes(terminoLower);
-      
-      const esBusquedaCiudad = esBusquedaCiudadExplicita || esProbableCiudad;
+      // Detectar si es una búsqueda de ciudad
+      const esBusquedaCiudad = tipoBusqueda === 'ciudad' || ciudadesConocidas.includes(terminoLower);
       
       // Buscar en la base de datos - obtener más resultados para filtrar mejor
       const { data, error } = await this.supabase
@@ -936,10 +979,8 @@ export class ChatbotComponent implements OnInit, AfterViewChecked {
         });
       } else {
         // Búsqueda normal: buscar en título, contenido, ciudad, departamento o país
-        // Pero usar regex para palabras completas cuando el término es largo
-        const regexTermino = terminoLower.length >= 4 ? 
-          new RegExp(`\\b${terminoLower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i') : 
-          null;
+        // Usar regex para palabras completas para evitar coincidencias parciales
+        const regexTermino = new RegExp(`\\b${terminoLower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
         
         noticiasFiltradas = data.filter(noticia => {
           const ciudadNoticia = (noticia.ciudad || '').toLowerCase();
@@ -947,22 +988,46 @@ export class ChatbotComponent implements OnInit, AfterViewChecked {
           const contenido = (noticia.contenido || '').toLowerCase();
           const departamento = (noticia.departamento || '').toLowerCase();
           const pais = (noticia.pais || '').toLowerCase();
+          const categoria = (noticia.categoria || '').toLowerCase();
+          const autor = (noticia.autor || '').toLowerCase();
+          const fuente = (noticia.fuente || '').toLowerCase();
           
-          // Si hay regex, usarlo para búsqueda de palabras completas
-          if (regexTermino) {
-            return regexTermino.test(titulo) || 
-                   regexTermino.test(contenido) || 
-                   regexTermino.test(ciudadNoticia) || 
-                   regexTermino.test(departamento) || 
-                   regexTermino.test(pais);
-          } else {
-            // Para términos cortos, búsqueda simple
-            return titulo.includes(terminoLower) || 
-                   contenido.includes(terminoLower) || 
-                   ciudadNoticia.includes(terminoLower) || 
-                   departamento.includes(terminoLower) || 
-                   pais.includes(terminoLower);
+          // Prioridad 1: Coincidencia exacta en campos específicos (ciudad, categoría, autor)
+          if (tipoBusqueda === 'categoria' || tipoBusqueda === 'tema') {
+            if (categoria.includes(terminoLower) || categoria === terminoLower) {
+              return true;
+            }
           }
+          
+          // Prioridad 2: Búsqueda con regex (palabras completas) en título (más relevante)
+          if (regexTermino.test(titulo)) {
+            // Verificar que no sea una coincidencia muy al final del título (menos relevante)
+            const posicionEnTitulo = titulo.indexOf(terminoLower);
+            if (posicionEnTitulo >= 0 && posicionEnTitulo < 150) {
+              return true;
+            }
+          }
+          
+          // Prioridad 3: Búsqueda en ciudad, departamento o país (campos geográficos)
+          if (regexTermino.test(ciudadNoticia) || regexTermino.test(departamento) || regexTermino.test(pais)) {
+            return true;
+          }
+          
+          // Prioridad 4: Búsqueda en categoría o autor
+          if (regexTermino.test(categoria) || regexTermino.test(autor) || regexTermino.test(fuente)) {
+            return true;
+          }
+          
+          // Prioridad 5: Búsqueda en contenido (solo si el término aparece en las primeras palabras)
+          if (regexTermino.test(contenido)) {
+            const posicionEnContenido = contenido.indexOf(terminoLower);
+            // Solo considerar relevante si aparece en las primeras 500 palabras
+            if (posicionEnContenido >= 0 && posicionEnContenido < 2000) {
+              return true;
+            }
+          }
+          
+          return false;
         });
       }
 
