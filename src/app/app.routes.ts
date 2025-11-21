@@ -48,6 +48,11 @@ export const routes: Routes = [
       import('./admin/admin.component').then(m => m.AdminComponent),
   },
   {
+    path: 'payment-confirmed',
+    loadComponent: () =>
+      import('./payment-confirmed/payment-confirmed.component').then(m => m.PaymentConfirmedComponent),
+  },
+  {
     path: 'noticias',
     loadComponent: () =>
       import('./noticias/noticias').then(m => m.PortalNoticiasComponent),

@@ -339,6 +339,12 @@ export class AdminComponent implements OnInit {
     await this.paymentService.checkAndRevokeExpiredPayments();
     await this.loadPaymentRequests();
     await this.loadProUsers();
+    
+    // Actualizar automáticamente cada 10 segundos para detectar cambios desde el email
+    setInterval(async () => {
+      await this.loadPaymentRequests();
+      await this.loadProUsers();
+    }, 10000); // Cada 10 segundos
   }
 
   async loadProUsers() {

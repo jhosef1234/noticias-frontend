@@ -66,8 +66,30 @@ export class PaymentService {
 
       const createdRequest: PaymentRequest = data as PaymentRequest;
 
-      // Enviar email de notificación (simulado - en producción usarías un servicio real)
-      await this.sendNotificationEmail(createdRequest);
+      // Llamar a la Edge Function para enviar el email
+      try {
+        const edgeFunctionUrl = `${environment.supabaseUrl}/functions/v1/send-payment-email?action=send`;
+        
+        const emailResponse = await fetch(edgeFunctionUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${environment.supabaseKey}`
+          },
+          body: JSON.stringify(createdRequest)
+        });
+
+        if (emailResponse.ok) {
+          console.log('✅ Email enviado exitosamente a través de Edge Function');
+        } else {
+          const errorData = await emailResponse.json();
+          console.warn('⚠️ Error al enviar email (pero la solicitud se guardó):', errorData);
+          // No fallar si el email falla, la solicitud ya está guardada
+        }
+      } catch (emailError) {
+        console.warn('⚠️ Error al llamar a Edge Function (pero la solicitud se guardó):', emailError);
+        // No fallar si el email falla, la solicitud ya está guardada
+      }
 
       return { success: true, data: createdRequest };
     } catch (error: any) {
