@@ -70,24 +70,47 @@ export class PaymentService {
       try {
         const edgeFunctionUrl = `${environment.supabaseUrl}/functions/v1/send-payment-email?action=send`;
         
+        console.log('📧 Llamando a Edge Function:', edgeFunctionUrl);
+        console.log('📧 Datos a enviar:', JSON.stringify(createdRequest, null, 2));
+        
         const emailResponse = await fetch(edgeFunctionUrl, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${environment.supabaseKey}`
+            'Authorization': `Bearer ${environment.supabaseKey}`,
+            'apikey': environment.supabaseKey
           },
-          body: JSON.stringify(createdRequest)
+          body: JSON.stringify({
+            payment_request: createdRequest,
+            action: 'send'
+          })
         });
 
+        console.log('📧 Respuesta de Edge Function - Status:', emailResponse.status);
+        console.log('📧 Respuesta de Edge Function - Headers:', emailResponse.headers);
+
         if (emailResponse.ok) {
-          console.log('✅ Email enviado exitosamente a través de Edge Function');
+          const responseData = await emailResponse.json();
+          console.log('✅ Email enviado exitosamente a través de Edge Function:', responseData);
         } else {
-          const errorData = await emailResponse.json();
-          console.warn('⚠️ Error al enviar email (pero la solicitud se guardó):', errorData);
+          const errorText = await emailResponse.text();
+          console.error('❌ Error al enviar email - Status:', emailResponse.status);
+          console.error('❌ Error al enviar email - Response:', errorText);
+          
+          // Intentar parsear como JSON si es posible
+          try {
+            const errorData = JSON.parse(errorText);
+            console.error('❌ Error detallado:', errorData);
+          } catch (e) {
+            console.error('❌ Error (texto):', errorText);
+          }
+          
           // No fallar si el email falla, la solicitud ya está guardada
         }
-      } catch (emailError) {
-        console.warn('⚠️ Error al llamar a Edge Function (pero la solicitud se guardó):', emailError);
+      } catch (emailError: any) {
+        console.error('❌ Error al llamar a Edge Function:', emailError);
+        console.error('❌ Error message:', emailError.message);
+        console.error('❌ Error stack:', emailError.stack);
         // No fallar si el email falla, la solicitud ya está guardada
       }
 
