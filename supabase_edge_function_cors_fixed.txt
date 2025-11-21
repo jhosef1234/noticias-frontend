@@ -28,6 +28,25 @@ Deno.serve(async (req: Request) => {
     const action = url.searchParams.get('action');
     const requestId = url.searchParams.get('id');
     const confirmStatus = url.searchParams.get('status');
+    const apikeyFromUrl = url.searchParams.get('apikey');
+    
+    // Para solicitudes GET de confirmación, verificar que tenga el apikey en la URL
+    // Esto permite acceso sin header de autorización
+    if (req.method === 'GET' && action === 'confirm') {
+      const expectedAnonKey = Deno.env.get('SUPABASE_ANON_KEY');
+      if (!expectedAnonKey || apikeyFromUrl !== expectedAnonKey) {
+        return new Response(
+          JSON.stringify({ error: 'Unauthorized: Invalid or missing API key' }),
+          {
+            headers: { 
+              ...corsHeaders,
+              'Content-Type': 'application/json' 
+            },
+            status: 401,
+          }
+        );
+      }
+    }
 
     // Si es una confirmación desde el email
     if (action === 'confirm' && requestId && confirmStatus) {
@@ -103,9 +122,10 @@ Deno.serve(async (req: Request) => {
       const siteUrl = Deno.env.get('SITE_URL') || 'http://localhost:4200';
       const supabaseFunctionsUrl = supabaseUrl.replace('/rest/v1', '');
       
-      // Crear links de confirmación
-      const approveUrl = `${supabaseFunctionsUrl}/functions/v1/send-payment-email?action=confirm&id=${paymentRequest.id}&status=approved`;
-      const rejectUrl = `${supabaseFunctionsUrl}/functions/v1/send-payment-email?action=confirm&id=${paymentRequest.id}&status=rejected`;
+      // Crear links de confirmación que apuntan a nuestra aplicación
+      // La app luego llamará a la Edge Function con los headers correctos
+      const approveUrl = `${siteUrl}/payment-confirmed?id=${paymentRequest.id}&status=approved`;
+      const rejectUrl = `${siteUrl}/payment-confirmed?id=${paymentRequest.id}&status=rejected`;
 
       console.log('📧 URLs de confirmación:');
       console.log('  - Aprobar:', approveUrl);
