@@ -460,6 +460,10 @@ export interface Noticia {
                   class="block w-full px-4 py-2.5 border-2 border-gray-300 dark:border-gray-600 rounded-xl shadow-md focus:outline-none focus:ring-4 focus:ring-blue-300/50 dark:focus:ring-blue-500/50 focus:border-blue-500 dark:focus:border-blue-500 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 transition-all duration-300 hover:border-blue-400 dark:hover:border-blue-500 hover:shadow-lg"
                 >
                   <option value="recientes">Más Recientes</option>
+                  <option value="hoy">Hoy</option>
+                  <option value="ayer">Ayer</option>
+                  <option value="semana">Esta Semana</option>
+                  <option value="mes">Este Mes</option>
                   <option value="antiguos">Más Antiguos</option>
                 </select>
               </div>
@@ -1447,6 +1451,73 @@ export class PortalNoticiasComponent implements OnInit, OnDestroy {
     });
   }
 
+  private obtenerRangoFechas(orden: string): { desde: Date | null, hasta: Date | null } {
+    const ahora = new Date();
+    const desde = new Date();
+    desde.setHours(0, 0, 0, 0);
+    const hasta = new Date();
+    hasta.setHours(23, 59, 59, 999);
+
+    switch (orden) {
+      case 'hoy':
+        return { desde, hasta };
+      
+      case 'ayer':
+        const ayer = new Date(desde);
+        ayer.setDate(ayer.getDate() - 1);
+        const finAyer = new Date(ayer);
+        finAyer.setHours(23, 59, 59, 999);
+        return { desde: ayer, hasta: finAyer };
+      
+      case 'semana':
+        const inicioSemana = new Date(desde);
+        inicioSemana.setDate(desde.getDate() - desde.getDay());
+        return { desde: inicioSemana, hasta };
+      
+      case 'mes':
+        const inicioMes = new Date(desde.getFullYear(), desde.getMonth(), 1);
+        return { desde: inicioMes, hasta };
+      
+      default:
+        return { desde: null, hasta: null };
+    }
+  }
+
+  private filtrarPorFecha(noticias: Noticia[], orden: string): Noticia[] {
+    const rangos = this.obtenerRangoFechas(orden);
+    
+    // Si no hay rango específico, devolver todas las noticias
+    if (!rangos.desde || !rangos.hasta) {
+      return noticias;
+    }
+
+    return noticias.filter(noticia => {
+      try {
+        // Parsear la fecha de la noticia
+        const fechaNoticia = new Date(noticia.fecha);
+        
+        // Verificar que la fecha sea válida
+        if (isNaN(fechaNoticia.getTime())) {
+          return false;
+        }
+
+        // Comparar solo la fecha (sin hora) para algunos casos
+        if (orden === 'hoy' || orden === 'ayer') {
+          const fechaNoticiaSolo = new Date(fechaNoticia.getFullYear(), fechaNoticia.getMonth(), fechaNoticia.getDate());
+          const desdeSolo = new Date(rangos.desde!.getFullYear(), rangos.desde!.getMonth(), rangos.desde!.getDate());
+          const hastaSolo = new Date(rangos.hasta!.getFullYear(), rangos.hasta!.getMonth(), rangos.hasta!.getDate());
+          return fechaNoticiaSolo >= desdeSolo && fechaNoticiaSolo <= hastaSolo;
+        }
+
+        // Para otros casos, comparar con hora incluida
+        return fechaNoticia >= rangos.desde! && fechaNoticia <= rangos.hasta!;
+      } catch (error) {
+        console.error('Error al parsear fecha de noticia:', noticia.fecha, error);
+        return false;
+      }
+    });
+  }
+
   aplicarFiltros() {
     let noticiasFiltradas = [...this.noticias];
 
@@ -1460,12 +1531,19 @@ export class PortalNoticiasComponent implements OnInit, OnDestroy {
         });
       }
 
+      // Filtrar por fecha si es una opción de tiempo específica (ANTES de otros filtros)
+      if (['hoy', 'ayer', 'semana', 'mes'].includes(this.ordenSeleccionado)) {
+        const antesFiltro = noticiasFiltradas.length;
+        noticiasFiltradas = this.filtrarPorFecha(noticiasFiltradas, this.ordenSeleccionado);
+        console.log(`📅 Filtro ${this.ordenSeleccionado}: ${antesFiltro} → ${noticiasFiltradas.length} noticias`);
+      }
+
       // Ordenar (disponible en Free - más recientes y más antiguos)
-      if (this.ordenSeleccionado === 'recientes') {
+      if (this.ordenSeleccionado === 'recientes' || ['hoy', 'ayer', 'semana', 'mes'].includes(this.ordenSeleccionado)) {
         noticiasFiltradas.sort((a, b) =>
           new Date(b.fecha).getTime() - new Date(a.fecha).getTime()
         );
-      } else {
+      } else if (this.ordenSeleccionado === 'antiguos') {
         noticiasFiltradas.sort((a, b) =>
           new Date(a.fecha).getTime() - new Date(b.fecha).getTime()
         );
@@ -1533,12 +1611,19 @@ export class PortalNoticiasComponent implements OnInit, OnDestroy {
     }
 
 
+    // Filtrar por fecha si es una opción de tiempo específica (ANTES de otros filtros)
+    if (['hoy', 'ayer', 'semana', 'mes'].includes(this.ordenSeleccionado)) {
+      const antesFiltro = noticiasFiltradas.length;
+      noticiasFiltradas = this.filtrarPorFecha(noticiasFiltradas, this.ordenSeleccionado);
+      console.log(`📅 Filtro ${this.ordenSeleccionado}: ${antesFiltro} → ${noticiasFiltradas.length} noticias`);
+    }
+
     // Ordenar
-    if (this.ordenSeleccionado === 'recientes') {
+    if (this.ordenSeleccionado === 'recientes' || ['hoy', 'ayer', 'semana', 'mes'].includes(this.ordenSeleccionado)) {
       noticiasFiltradas.sort((a, b) =>
         new Date(b.fecha).getTime() - new Date(a.fecha).getTime()
       );
-    } else {
+    } else if (this.ordenSeleccionado === 'antiguos') {
       noticiasFiltradas.sort((a, b) =>
         new Date(a.fecha).getTime() - new Date(b.fecha).getTime()
       );
