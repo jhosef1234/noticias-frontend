@@ -31,34 +31,34 @@ export interface Noticia {
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule],
   template: `
-    <div class="min-h-screen bg-gradient-to-br from-gray-50 via-slate-50/30 to-blue-50/30 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
+    <div class="min-h-screen bg-gradient-to-br from-gray-50 via-slate-50/30 to-blue-50/30 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300 overflow-x-hidden w-full max-w-full">
       <!-- Header -->
       <header class="bg-gradient-to-r from-slate-700 via-blue-700 to-teal-600 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800 shadow-2xl border-b-4 border-slate-500/50 dark:border-gray-700 relative z-50">
         <!-- Efecto de brillo animado en el header -->
         <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -skew-x-12 animate-shimmer overflow-hidden"></div>
         <div class="w-full px-4 sm:px-6 lg:px-8 py-4 md:py-5 relative">
           <!-- Desktop Layout -->
-          <div class="hidden md:grid md:grid-cols-3 items-center gap-2">
+          <div class="hidden md:flex md:items-center md:justify-between md:gap-4">
             <!-- Logo and Title Section - Left -->
-            <div class="flex items-center space-x-3 relative z-10">
-              <div class="w-16 h-16 bg-gradient-to-br from-white to-blue-50 rounded-xl flex items-center justify-center shadow-2xl transform hover:scale-110 hover:rotate-3 transition-all duration-300 flex-shrink-0 border-2 border-white/50">
-                <svg class="w-10 h-10 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="flex items-center space-x-3 relative z-10 flex-shrink-0">
+              <div class="w-14 h-14 bg-gradient-to-br from-white to-blue-50 rounded-xl flex items-center justify-center shadow-2xl transform hover:scale-110 hover:rotate-3 transition-all duration-300 flex-shrink-0 border-2 border-white/50">
+                <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
                 </svg>
               </div>
               <div>
-                <h1 class="text-3xl md:text-4xl font-black text-white tracking-tight drop-shadow-lg bg-gradient-to-r from-white via-slate-100 to-blue-100 bg-clip-text text-transparent">
+                <h1 class="text-2xl md:text-3xl font-black text-white tracking-tight drop-shadow-lg bg-gradient-to-r from-white via-slate-100 to-blue-100 bg-clip-text text-transparent">
                   Portal de Noticias
                 </h1>
-                <p class="text-blue-100 text-sm md:text-base mt-1 font-semibold drop-shadow-md">
+                <p class="text-blue-100 text-xs md:text-sm mt-0.5 font-semibold drop-shadow-md">
                   Tu fuente de información confiable 📰
                 </p>
               </div>
             </div>
 
             <!-- Search Bar - Center -->
-            <div class="flex justify-center px-3 relative z-10">
-              <div class="relative w-full max-w-xl min-w-0">
+            <div class="flex-1 flex justify-center px-2 relative z-10 min-w-0 max-w-2xl mx-auto">
+              <div class="relative w-full min-w-0">
                 <input
                   type="text"
                   [(ngModel)]="terminoBusqueda"
@@ -87,20 +87,20 @@ export interface Noticia {
             </div>
             
             <!-- Botones de Favoritos, Historial, Planes y Login/Logout - Right -->
-            <div class="flex items-center gap-1.5 sm:gap-1.5 flex-wrap justify-end">
+            <div class="flex items-center gap-1 sm:gap-1.5 justify-end flex-nowrap">
               <!-- Botón Favoritos -->
               <button
                 routerLink="/favoritos"
                 [disabled]="!planService.isPro()"
                 [class.opacity-50]="!planService.isPro()"
                 [class.cursor-not-allowed]="!planService.isPro()"
-                class="px-2 sm:px-2.5 py-1.5 bg-white/95 dark:bg-gray-700/95 backdrop-blur-sm text-yellow-600 dark:text-yellow-400 text-xs sm:text-sm font-bold rounded-full hover:bg-gradient-to-r hover:from-yellow-50 hover:to-yellow-100 dark:hover:bg-gray-600 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 border-2 border-yellow-200/50 dark:border-yellow-700/50 flex items-center gap-1 whitespace-nowrap flex-shrink-0 relative z-10"
+                class="px-2 py-1.5 bg-white/95 dark:bg-gray-700/95 backdrop-blur-sm text-yellow-600 dark:text-yellow-400 text-xs font-bold rounded-full hover:bg-gradient-to-r hover:from-yellow-50 hover:to-yellow-100 dark:hover:bg-gray-600 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 border-2 border-yellow-200/50 dark:border-yellow-700/50 flex items-center gap-1 whitespace-nowrap flex-shrink-0 relative z-10"
                 [title]="planService.isPro() ? 'Mis favoritos' : 'Actualiza a Pro para usar favoritos'"
               >
-                <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <svg class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
                 </svg>
-                <span class="hidden sm:inline">Favoritos</span>
+                <span class="hidden lg:inline">Favoritos</span>
               </button>
               
               <!-- Botón Historial -->
@@ -109,61 +109,61 @@ export interface Noticia {
                 [disabled]="!planService.isPro()"
                 [class.opacity-50]="!planService.isPro()"
                 [class.cursor-not-allowed]="!planService.isPro()"
-                class="px-2 sm:px-2.5 py-1.5 bg-white/95 dark:bg-gray-700/95 backdrop-blur-sm text-teal-600 dark:text-teal-400 text-xs sm:text-sm font-bold rounded-full hover:bg-gradient-to-r hover:from-teal-50 hover:to-cyan-50 dark:hover:bg-gray-600 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 border-2 border-teal-200/50 dark:border-teal-700/50 flex items-center gap-1 whitespace-nowrap flex-shrink-0 relative z-10"
+                class="px-2 py-1.5 bg-white/95 dark:bg-gray-700/95 backdrop-blur-sm text-teal-600 dark:text-teal-400 text-xs font-bold rounded-full hover:bg-gradient-to-r hover:from-teal-50 hover:to-cyan-50 dark:hover:bg-gray-600 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 border-2 border-teal-200/50 dark:border-teal-700/50 flex items-center gap-1 whitespace-nowrap flex-shrink-0 relative z-10"
                 [title]="planService.isPro() ? 'Historial' : 'Actualiza a Pro para usar historial'"
               >
-                <svg class="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
-                <span class="hidden sm:inline">Historial</span>
+                <span class="hidden lg:inline">Historial</span>
               </button>
               
               <!-- Botón Planes -->
               <button
                 routerLink="/planes"
-                class="px-2 sm:px-2.5 py-1.5 bg-white/95 dark:bg-gray-700/95 backdrop-blur-sm text-indigo-600 dark:text-indigo-400 text-xs sm:text-sm font-bold rounded-full hover:bg-gradient-to-r hover:from-indigo-50 hover:to-indigo-100 dark:hover:bg-gray-600 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 border-2 border-indigo-200/50 dark:border-indigo-700/50 flex items-center gap-1 whitespace-nowrap flex-shrink-0 relative z-10"
+                class="px-2 py-1.5 bg-white/95 dark:bg-gray-700/95 backdrop-blur-sm text-indigo-600 dark:text-indigo-400 text-xs font-bold rounded-full hover:bg-gradient-to-r hover:from-indigo-50 hover:to-indigo-100 dark:hover:bg-gray-600 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 border-2 border-indigo-200/50 dark:border-indigo-700/50 flex items-center gap-1 whitespace-nowrap flex-shrink-0 relative z-10"
                 title="Ver planes"
               >
-                <svg class="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
                 </svg>
-                <span class="hidden sm:inline">Planes</span>
+                <span class="hidden lg:inline">Planes</span>
               </button>
               
               <!-- Botón Toggle Tema - Siempre disponible -->
               <button
                 (click)="themeService.toggleTheme()"
-                class="px-2.5 py-1.5 bg-white/95 dark:bg-gray-700/95 backdrop-blur-sm text-gray-700 dark:text-yellow-400 text-xs sm:text-sm font-bold rounded-full hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:bg-gray-600 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 border-2 border-gray-200/50 dark:border-yellow-700/50 flex items-center justify-center gap-1 whitespace-nowrap min-w-[36px] h-[36px] relative z-10"
+                class="px-2 py-1.5 bg-white/95 dark:bg-gray-700/95 backdrop-blur-sm text-gray-700 dark:text-yellow-400 text-xs font-bold rounded-full hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:bg-gray-600 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 border-2 border-gray-200/50 dark:border-yellow-700/50 flex items-center justify-center gap-1 whitespace-nowrap min-w-[32px] h-[32px] relative z-10"
                 [title]="themeService.darkMode() ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'"
               >
-                <svg *ngIf="themeService.darkMode()" class="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg *ngIf="themeService.darkMode()" class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z"/>
                 </svg>
-                <svg *ngIf="!themeService.darkMode()" class="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg *ngIf="!themeService.darkMode()" class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z"/>
                 </svg>
-                <span class="hidden sm:inline">{{ themeService.darkMode() ? 'Claro' : 'Oscuro' }}</span>
+                <span class="hidden lg:inline">{{ themeService.darkMode() ? 'Claro' : 'Oscuro' }}</span>
               </button>
               
               <!-- Botón de Login -->
               <button
                 *ngIf="!estaAutenticado"
                 (click)="irALogin()"
-                class="px-2.5 sm:px-3 py-1.5 bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-400 text-xs sm:text-sm font-semibold rounded-full hover:bg-blue-50 dark:hover:bg-gray-600 transition-colors shadow-lg flex items-center gap-1 whitespace-nowrap flex-shrink-0"
+                class="px-2 py-1.5 bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-400 text-xs font-semibold rounded-full hover:bg-blue-50 dark:hover:bg-gray-600 transition-colors shadow-lg flex items-center gap-1 whitespace-nowrap flex-shrink-0"
               >
-                <svg class="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
                 </svg>
-                <span class="hidden sm:inline">Iniciar Sesión</span>
-                <span class="sm:hidden">Login</span>
+                <span class="hidden lg:inline">Iniciar Sesión</span>
+                <span class="lg:hidden">Login</span>
               </button>
               
               <!-- Perfil y Logout cuando está autenticado -->
-              <div *ngIf="estaAutenticado" class="flex items-center gap-2 relative ml-2 perfil-dropdown-container" style="z-index: 10000;">
+              <div *ngIf="estaAutenticado" class="flex items-center gap-1 relative ml-1 perfil-dropdown-container" style="z-index: 10000;">
                 <!-- Avatar del usuario -->
                 <button
                   (click)="mostrandoPerfil = !mostrandoPerfil; $event.stopPropagation()"
-                  class="relative w-9 h-9 rounded-full bg-gradient-to-br from-slate-600 to-blue-600 flex items-center justify-center text-white font-bold text-sm shadow-lg hover:shadow-xl transition-all transform hover:scale-105 border-2 border-white flex-shrink-0 z-[10001]"
+                  class="relative w-8 h-8 rounded-full bg-gradient-to-br from-slate-600 to-blue-600 flex items-center justify-center text-white font-bold text-xs shadow-lg hover:shadow-xl transition-all transform hover:scale-105 border-2 border-white flex-shrink-0 z-[10001]"
                   [title]="obtenerNombreUsuario()"
                 >
                   {{ obtenerInicialUsuario() }}

@@ -1,0 +1,21 @@
+/* Prevenir scroll horizontal */
+html, body {
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100vw;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Ocultar scrollbar horizontal si aparece */
+body::-webkit-scrollbar:horizontal {
+  display: none;
+}
+
+body {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
