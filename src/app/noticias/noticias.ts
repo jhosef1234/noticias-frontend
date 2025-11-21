@@ -1776,11 +1776,13 @@ export class PortalNoticiasComponent implements OnInit, OnDestroy {
   // Esto asegura que la misma noticia siempre tenga la misma imagen
   obtenerImagenPorDefecto(noticiaId: number): string {
     if (this.imagenesPorDefecto.length === 0) {
-      return 'assets/images/portadas-periodicos.jpg'; // Fallback
+      return '/assets/images/portadas-periodicos.jpg'; // Fallback
     }
     // Usar el ID de la noticia como semilla para seleccionar una imagen
     const indice = noticiaId % this.imagenesPorDefecto.length;
-    return `assets/images/${this.imagenesPorDefecto[indice]}`;
+    const nombreArchivo = this.imagenesPorDefecto[indice];
+    // Usar ruta absoluta y codificar solo los espacios y caracteres especiales problemáticos
+    return `/assets/images/${nombreArchivo}`;
   }
 
   // Manejar error de carga de imagen por defecto e intentar con otra
@@ -1789,17 +1791,24 @@ export class PortalNoticiasComponent implements OnInit, OnDestroy {
     const currentSrc = img.src;
     
     // Extraer el nombre del archivo actual
-    const currentFileName = currentSrc.split('/').pop();
+    let currentFileName = currentSrc.split('/').pop() || '';
+    // Intentar decodificar si está codificado
+    try {
+      currentFileName = decodeURIComponent(currentFileName);
+    } catch (e) {
+      // Si falla la decodificación, usar el nombre tal cual
+    }
+    
     const currentIndex = this.imagenesPorDefecto.indexOf(currentFileName);
     
     // Intentar con la siguiente imagen del array
+    let nextIndex = 0;
     if (currentIndex >= 0 && currentIndex < this.imagenesPorDefecto.length - 1) {
-      const nextIndex = (currentIndex + 1) % this.imagenesPorDefecto.length;
-      img.src = `assets/images/${this.imagenesPorDefecto[nextIndex]}`;
-    } else {
-      // Si no se puede determinar o es la última, intentar con la primera
-      img.src = `assets/images/${this.imagenesPorDefecto[0]}`;
+      nextIndex = (currentIndex + 1) % this.imagenesPorDefecto.length;
     }
+    
+    const nombreArchivo = this.imagenesPorDefecto[nextIndex];
+    img.src = `/assets/images/${nombreArchivo}`;
   }
 
   // Utilidades
