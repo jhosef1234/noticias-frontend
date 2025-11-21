@@ -193,6 +193,8 @@ export class PaymentService {
 
       if (status === 'approved') {
         updateData.approved_at = new Date().toISOString();
+      } else if (status === 'rejected') {
+        updateData.revoked_at = new Date().toISOString();
       } else if (status === 'revoked') {
         updateData.revoked_at = new Date().toISOString();
       }

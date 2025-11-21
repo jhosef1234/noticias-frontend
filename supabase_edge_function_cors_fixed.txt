@@ -48,8 +48,9 @@ Deno.serve(async (req: Request) => {
       }
     }
 
-    // Si es una confirmación desde el email
-    if (action === 'confirm' && requestId && confirmStatus) {
+    // Si es una confirmación (puede venir como GET desde email o POST desde frontend)
+    // Aceptar tanto GET como POST para confirmaciones
+    if (action === 'confirm' && requestId && confirmStatus && (req.method === 'GET' || req.method === 'POST')) {
       console.log(`📧 Confirmación recibida: ${confirmStatus} para solicitud ${requestId}`);
 
       // Construir el objeto de actualización según el estado

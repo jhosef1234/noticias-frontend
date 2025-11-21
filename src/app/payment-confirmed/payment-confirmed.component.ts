@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
-import { environment } from '../../environments/environment';
+import { PaymentService } from '../services/payment.service';
 
 @Component({
   selector: 'app-payment-confirmed',
@@ -68,7 +68,8 @@ export class PaymentConfirmedComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private paymentService: PaymentService
   ) {}
 
   async ngOnInit() {
@@ -89,29 +90,27 @@ export class PaymentConfirmedComponent implements OnInit {
 
   async confirmPayment(id: string, status: 'approved' | 'rejected') {
     try {
-      const edgeFunctionUrl = `${environment.supabaseUrl}/functions/v1/send-payment-email?action=confirm&id=${id}&status=${status}`;
+      console.log('📧 Confirmando pago - ID:', id, 'Status:', status);
       
-      const response = await fetch(edgeFunctionUrl, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${environment.supabaseKey}`,
-          'apikey': environment.supabaseKey,
-          'Content-Type': 'application/json'
-        }
-      });
+      // Usar PaymentService directamente para actualizar el estado en Supabase
+      // Esto evita el problema de autenticación con Edge Functions
+      const success = await this.paymentService.updatePaymentRequestStatus(
+        parseInt(id),
+        status as 'approved' | 'rejected'
+      );
 
-      if (response.ok || response.status === 302) {
-        // Si es una redirección, el status ya viene en la URL
+      if (success) {
+        console.log('✅ Confirmación exitosa');
         this.status = status;
         this.processing = false;
       } else {
-        const errorData = await response.json().catch(() => ({ message: 'Error desconocido' }));
-        this.error = errorData.message || 'Error al procesar la solicitud';
+        console.error('❌ Error al actualizar el estado');
+        this.error = 'Error al procesar la solicitud. Por favor, intenta nuevamente.';
         this.processing = false;
       }
     } catch (error: any) {
-      console.error('Error confirmando pago:', error);
-      this.error = 'Error al conectar con el servidor';
+      console.error('❌ Error confirmando pago:', error);
+      this.error = error.message || 'Error al conectar con el servidor. Por favor, intenta nuevamente.';
       this.processing = false;
     }
   }
