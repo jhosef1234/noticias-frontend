@@ -114,7 +114,7 @@ import Swal from 'sweetalert2';
 
         <!-- Footer -->
         <p class="text-center text-sm text-blue-100">
-          © 2025 Portal de Noticias. Todos los derechos reservados.
+          © 2025 NotiNow. Todos los derechos reservados.
         </p>
       </div>
     </div>

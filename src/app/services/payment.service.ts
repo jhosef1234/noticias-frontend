@@ -408,7 +408,7 @@ export class PaymentService {
       <p style="margin-top: 20px;"><strong>Nota:</strong> El usuario permanecerá en Plan Free hasta que apruebes esta solicitud.</p>
     </div>
     <div class="footer">
-      <p>Portal de Noticias - Sistema de Administración</p>
+      <p>NotiNow - Sistema de Administración</p>
       <p>Este es un email automático. Por favor, no respondas a este mensaje.</p>
     </div>
   </div>

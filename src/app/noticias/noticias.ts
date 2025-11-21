@@ -48,7 +48,7 @@ export interface Noticia {
               </div>
               <div>
                 <h1 class="text-2xl md:text-3xl font-black text-white tracking-tight drop-shadow-lg bg-gradient-to-r from-white via-slate-100 to-blue-100 bg-clip-text text-transparent">
-                  Portal de Noticias
+                  NotiNow
                 </h1>
                 <p class="text-blue-100 text-xs md:text-sm mt-0.5 font-semibold drop-shadow-md">
                   Tu fuente de información confiable 📰
@@ -239,7 +239,7 @@ export interface Noticia {
                 </div>
                 <div>
                   <h1 class="text-3xl font-extrabold text-white tracking-tight">
-                    Portal de Noticias
+                    NotiNow
                   </h1>
                   <p class="text-blue-100 text-sm mt-1">
                     Tu fuente de información confiable 📰
@@ -1965,7 +1965,7 @@ export class PortalNoticiasComponent implements OnInit, OnDestroy {
     Has cerrado sesión exitosamente.
   </p>
   <p style="font-size: 14px; color: #64748b; margin-top: 8px;">
-    Gracias por usar nuestro portal de noticias.
+    Gracias por usar NotiNow.
   </p>
 </div>
           `,

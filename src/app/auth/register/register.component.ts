@@ -246,7 +246,7 @@ import { PlanService } from '../../services/plan.service';
 
         <!-- Footer mejorado -->
         <p class="text-center text-sm text-white/80 font-medium drop-shadow-lg">
-          © 2025 Portal de Noticias. Todos los derechos reservados.
+          © 2025 NotiNow. Todos los derechos reservados.
         </p>
       </div>
     </div>

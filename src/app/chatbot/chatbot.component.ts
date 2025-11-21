@@ -94,7 +94,7 @@ interface Mensaje {
           </div>
           <div class="flex-1 bg-white dark:bg-gray-700 rounded-2xl rounded-tl-none p-4 shadow-md">
             <p class="text-gray-800 dark:text-gray-200 text-sm">
-              ¡Hola! 👋 Soy tu asistente virtual exclusivo para miembros Pro. Puedes escribirme cualquier pregunta sobre el portal de noticias y te ayudaré con información avanzada.
+              ¡Hola! 👋 Soy tu asistente virtual exclusivo para miembros Pro. Puedes escribirme cualquier pregunta sobre NotiNow y te ayudaré con información avanzada.
             </p>
           </div>
         </div>
@@ -616,7 +616,7 @@ export class ChatbotComponent implements OnInit, AfterViewChecked {
 
     // Despedidas
     if (this.contienePalabras(palabras, ['adiós', 'adios', 'gracias', 'chao', 'bye', 'hasta luego'])) {
-      return { contenido: '¡De nada! 😊 Estoy aquí siempre que necesites ayuda. Si tienes más preguntas sobre el portal de noticias, no dudes en escribirme. ¡Que tengas un excelente día!' };
+      return { contenido: '¡De nada! 😊 Estoy aquí siempre que necesites ayuda. Si tienes más preguntas sobre NotiNow, no dudes en escribirme. ¡Que tengas un excelente día!' };
     }
 
     // Respuesta genérica inteligente
@@ -1119,7 +1119,7 @@ export class ChatbotComponent implements OnInit, AfterViewChecked {
     }
 
     if (pregunta.includes('qué') || pregunta.includes('que') || pregunta.includes('quien') || pregunta.includes('quién')) {
-      return 'Puedo explicarte sobre las funciones del portal de noticias. Algunos temas:\n\n• Qué es el Plan Pro y qué incluye\n• Qué son los favoritos y cómo usarlos\n• Qué es el historial de lectura\n• Qué son las noticias populares\n• Qué filtros están disponibles\n\n¿Sobre cuál tema quieres información?';
+      return 'Puedo explicarte sobre las funciones de NotiNow. Algunos temas:\n\n• Qué es el Plan Pro y qué incluye\n• Qué son los favoritos y cómo usarlos\n• Qué es el historial de lectura\n• Qué son las noticias populares\n• Qué filtros están disponibles\n\n¿Sobre cuál tema quieres información?';
     }
 
     return 'Entiendo tu pregunta. Puedo ayudarte con información sobre:\n\n• Funciones del Plan Pro\n• Cómo usar filtros avanzados\n• Gestión de favoritos e historial\n• Sistema de popularidad\n• Búsqueda de noticias\n• Suscripción y planes\n\n¿Puedes ser más específico sobre qué necesitas? O puedes seleccionar una pregunta rápida de arriba.';
