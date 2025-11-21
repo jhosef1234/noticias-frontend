@@ -438,8 +438,13 @@ export class PaymentComponent implements OnInit {
 
     this.loading = false;
 
-    if (result.success) {
+    if (result.success && result.data) {
       this.paymentStatus = 'pending';
+      console.log('✅ Solicitud de pago creada exitosamente:', result.data);
+      
+      // Verificar el estado después de crear la solicitud
+      await this.checkPaymentStatus();
+      
       await Swal.fire({
         title: '<div style="font-size: 28px; font-weight: 700; color: #1e293b; margin-bottom: 8px;">🎉 ¡Solicitud Enviada!</div>',
         html: `

@@ -338,11 +338,11 @@ export class AdminComponent implements OnInit {
     // Verificar y revocar planes expirados al cargar
     await this.paymentService.checkAndRevokeExpiredPayments();
     await this.loadPaymentRequests();
-    this.loadProUsers();
+    await this.loadProUsers();
   }
 
-  loadProUsers() {
-    this.proUsers = this.planService.getProUsers();
+  async loadProUsers() {
+    this.proUsers = await this.paymentService.getProUsers();
   }
 
   async loadPaymentRequests() {
@@ -389,7 +389,7 @@ export class AdminComponent implements OnInit {
         this.planService.assignProPlan(request.user_email);
         
         await this.loadPaymentRequests();
-        this.loadProUsers(); // Actualizar lista de usuarios Pro
+        await this.loadProUsers(); // Actualizar lista de usuarios Pro
         
         await Swal.fire({
           title: '¡Pago aprobado!',
@@ -499,7 +499,7 @@ export class AdminComponent implements OnInit {
       }
       
       await this.loadPaymentRequests();
-      this.loadProUsers();
+      await this.loadProUsers();
       
       await Swal.fire({
         title: 'Plan Pro revocado',
@@ -544,7 +544,7 @@ export class AdminComponent implements OnInit {
           this.planService.revokeProPlan(request.user_email);
           
           await this.loadPaymentRequests();
-          this.loadProUsers();
+          await this.loadProUsers();
           
           await Swal.fire({
             title: 'Solicitud revocada',

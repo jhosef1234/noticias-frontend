@@ -1,4 +1,6 @@
 import { Injectable } from '@angular/core';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { environment } from '../../environments/environment';
 
 export interface PaymentRequest {
   id?: number;
@@ -18,39 +20,79 @@ export interface PaymentRequest {
   providedIn: 'root'
 })
 export class PaymentService {
-  // No usamos Supabase para pagos, solo localStorage
+  private supabase: SupabaseClient;
+
+  constructor() {
+    // Inicializar Supabase para solicitudes de pago
+    this.supabase = createClient(environment.supabaseUrl, environment.supabaseKey);
+  }
 
   async createPaymentRequest(request: Omit<PaymentRequest, 'id' | 'status' | 'created_at' | 'approved_at'>): Promise<{ success: boolean; error?: string; data?: PaymentRequest }> {
     try {
-      const paymentRequest: PaymentRequest = {
-        id: Date.now(), // ID temporal único
-        ...request,
-        status: 'pending',
-        created_at: new Date().toISOString()
+      // Preparar los datos para Supabase
+      // Asegurar que payment_date y payment_time estén en el formato correcto
+      const paymentRequest = {
+        user_email: request.user_email,
+        user_name: request.user_name,
+        user_phone: request.user_phone,
+        payment_date: request.payment_date, // Formato YYYY-MM-DD (viene del input type="date")
+        payment_time: request.payment_time, // Formato HH:MM (viene del input type="time")
+        plan: request.plan,
+        status: 'pending' as const
+        // created_at se genera automáticamente en Supabase con DEFAULT NOW()
       };
 
-      // Guardar en localStorage
-      const existing = JSON.parse(localStorage.getItem('payment_requests') || '[]');
-      existing.push(paymentRequest);
-      localStorage.setItem('payment_requests', JSON.stringify(existing));
+      console.log('📤 Enviando solicitud de pago a Supabase:', paymentRequest);
+
+      // Guardar en Supabase
+      const { data, error } = await this.supabase
+        .from('payment_requests')
+        .insert([paymentRequest])
+        .select()
+        .single();
+
+      if (error) {
+        console.error('❌ Error creating payment request in Supabase:', error);
+        console.error('Error details:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        });
+        throw error;
+      }
+
+      console.log('✅ Solicitud de pago creada exitosamente en Supabase:', data);
+
+      const createdRequest: PaymentRequest = data as PaymentRequest;
 
       // Enviar email de notificación (simulado - en producción usarías un servicio real)
-      await this.sendNotificationEmail(paymentRequest);
+      await this.sendNotificationEmail(createdRequest);
 
-      return { success: true, data: paymentRequest };
+      return { success: true, data: createdRequest };
     } catch (error: any) {
       console.error('Error creating payment request:', error);
-      return { success: false, error: error.message };
+      return { success: false, error: error.message || 'Error al crear la solicitud de pago' };
     }
   }
 
   async getPaymentRequestByEmail(email: string): Promise<PaymentRequest | null> {
     try {
-      const requests: PaymentRequest[] = JSON.parse(localStorage.getItem('payment_requests') || '[]');
-      const request = requests
-        .filter(r => r.user_email === email && r.status === 'pending')
-        .sort((a, b) => new Date(b.created_at || '').getTime() - new Date(a.created_at || '').getTime())[0];
-      return request || null;
+      const { data, error } = await this.supabase
+        .from('payment_requests')
+        .select('*')
+        .eq('user_email', email)
+        .eq('status', 'pending')
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
+        console.error('Error getting payment request:', error);
+        return null;
+      }
+
+      return data as PaymentRequest | null;
     } catch (error: any) {
       console.error('Error getting payment request:', error);
       return null;
@@ -59,17 +101,20 @@ export class PaymentService {
 
   async checkPaymentStatus(email: string): Promise<'pending' | 'approved' | 'rejected' | 'revoked' | null> {
     try {
-      const requests: PaymentRequest[] = JSON.parse(localStorage.getItem('payment_requests') || '[]');
-      
-      // Obtener todas las solicitudes del usuario ordenadas por fecha (más reciente primero)
-      const userRequests = requests
-        .filter(r => r.user_email === email)
-        .sort((a, b) => new Date(b.created_at || '').getTime() - new Date(a.created_at || '').getTime());
-      
-      if (userRequests.length === 0) return null;
-      
-      // Retornar el estado de la solicitud más reciente
-      return userRequests[0].status;
+      const { data, error } = await this.supabase
+        .from('payment_requests')
+        .select('status')
+        .eq('user_email', email)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error checking payment status:', error);
+        return null;
+      }
+
+      return data?.status || null;
     } catch (error: any) {
       console.error('Error checking payment status:', error);
       return null;
@@ -78,10 +123,17 @@ export class PaymentService {
 
   async getAllPaymentRequests(): Promise<PaymentRequest[]> {
     try {
-      const requests: PaymentRequest[] = JSON.parse(localStorage.getItem('payment_requests') || '[]');
-      return requests.sort((a, b) => 
-        new Date(b.created_at || '').getTime() - new Date(a.created_at || '').getTime()
-      );
+      const { data, error } = await this.supabase
+        .from('payment_requests')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error getting all payment requests:', error);
+        return [];
+      }
+
+      return (data || []) as PaymentRequest[];
     } catch (error: any) {
       console.error('Error getting all payment requests:', error);
       return [];
@@ -90,23 +142,34 @@ export class PaymentService {
 
   async updatePaymentRequestStatus(id: number, status: 'approved' | 'rejected' | 'revoked'): Promise<boolean> {
     try {
-      const requests: PaymentRequest[] = JSON.parse(localStorage.getItem('payment_requests') || '[]');
-      const updated = requests.map(r => {
-        if (r.id === id) {
-          return {
-            ...r,
-            status,
-            approved_at: status === 'approved' ? new Date().toISOString() : r.approved_at,
-            revoked_at: status === 'revoked' ? new Date().toISOString() : r.revoked_at
-          };
-        }
-        return r;
-      });
-      localStorage.setItem('payment_requests', JSON.stringify(updated));
-      
-      // Si se aprueba, agregar el email a la lista de usuarios Pro
+      const updateData: any = {
+        status
+      };
+
       if (status === 'approved') {
-        const approvedRequest = requests.find(r => r.id === id);
+        updateData.approved_at = new Date().toISOString();
+      } else if (status === 'revoked') {
+        updateData.revoked_at = new Date().toISOString();
+      }
+
+      const { error } = await this.supabase
+        .from('payment_requests')
+        .update(updateData)
+        .eq('id', id);
+
+      if (error) {
+        console.error('Error updating payment request status:', error);
+        return false;
+      }
+      
+      // Si se aprueba, agregar el email a la lista de usuarios Pro (usando localStorage para sincronización con PlanService)
+      if (status === 'approved') {
+        const { data: approvedRequest } = await this.supabase
+          .from('payment_requests')
+          .select('user_email')
+          .eq('id', id)
+          .single();
+
         if (approvedRequest) {
           const proUsers = JSON.parse(localStorage.getItem('pro_users') || '[]');
           if (!proUsers.includes(approvedRequest.user_email)) {
@@ -118,7 +181,12 @@ export class PaymentService {
       
       // Si se revoca, remover el email de la lista de usuarios Pro
       if (status === 'revoked') {
-        const revokedRequest = requests.find(r => r.id === id);
+        const { data: revokedRequest } = await this.supabase
+          .from('payment_requests')
+          .select('user_email')
+          .eq('id', id)
+          .single();
+
         if (revokedRequest) {
           const proUsers = JSON.parse(localStorage.getItem('pro_users') || '[]');
           const updatedProUsers = proUsers.filter((email: string) => email !== revokedRequest.user_email);
@@ -133,9 +201,32 @@ export class PaymentService {
     }
   }
 
-  // Obtener todos los usuarios con plan Pro
-  getProUsers(): string[] {
-    return JSON.parse(localStorage.getItem('pro_users') || '[]');
+  // Obtener todos los usuarios con plan Pro (desde solicitudes aprobadas)
+  async getProUsers(): Promise<string[]> {
+    try {
+      const { data, error } = await this.supabase
+        .from('payment_requests')
+        .select('user_email')
+        .eq('status', 'approved');
+
+      if (error) {
+        console.error('Error getting pro users:', error);
+        // Fallback a localStorage
+        return JSON.parse(localStorage.getItem('pro_users') || '[]');
+      }
+
+      // Obtener emails únicos
+      const uniqueEmails = [...new Set((data || []).map(r => r.user_email))];
+      
+      // Sincronizar con localStorage
+      localStorage.setItem('pro_users', JSON.stringify(uniqueEmails));
+      
+      return uniqueEmails;
+    } catch (error: any) {
+      console.error('Error getting pro users:', error);
+      // Fallback a localStorage
+      return JSON.parse(localStorage.getItem('pro_users') || '[]');
+    }
   }
 
   /**
@@ -162,14 +253,22 @@ export class PaymentService {
    */
   async checkAndRevokeExpiredPayments(): Promise<number> {
     try {
-      const requests: PaymentRequest[] = JSON.parse(localStorage.getItem('payment_requests') || '[]');
+      // Obtener todos los pagos aprobados que no estén revocados
+      const { data: approvedRequests, error } = await this.supabase
+        .from('payment_requests')
+        .select('*')
+        .eq('status', 'approved')
+        .not('approved_at', 'is', null);
+
+      if (error) {
+        console.error('Error getting approved requests:', error);
+        return 0;
+      }
+
       let revokedCount = 0;
       
-      // Filtrar solo los aprobados que no estén ya revocados
-      const approvedRequests = requests.filter(r => r.status === 'approved' && r.approved_at);
-      
-      for (const request of approvedRequests) {
-        if (this.isPaymentExpired(request.approved_at)) {
+      for (const request of (approvedRequests || [])) {
+        if (request.approved_at && this.isPaymentExpired(request.approved_at)) {
           // Revocar el pago
           if (request.id) {
             await this.updatePaymentRequestStatus(request.id, 'revoked');
