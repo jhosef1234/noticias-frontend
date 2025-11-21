@@ -11,26 +11,28 @@ import Swal from 'sweetalert2';
   standalone: true,
   imports: [CommonModule, RouterModule],
   template: `
-    <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div class="min-h-screen bg-gradient-to-br from-gray-50 via-slate-50/30 to-blue-50/30 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
       <!-- Header -->
-      <header class="bg-gradient-to-r from-blue-600 to-blue-800 shadow-2xl border-b border-blue-900">
-        <div class="w-full px-4 sm:px-6 lg:px-8 py-6">
+      <header class="bg-gradient-to-r from-slate-700 via-blue-700 to-teal-600 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800 shadow-2xl border-b-4 border-slate-500/50 dark:border-gray-700 relative z-50">
+        <!-- Efecto de brillo animado en el header -->
+        <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -skew-x-12 animate-shimmer overflow-hidden"></div>
+        <div class="w-full px-4 sm:px-6 lg:px-8 py-4 md:py-5 relative">
           <div class="flex items-center justify-between">
             <div class="flex items-center space-x-4">
               <button
                 routerLink="/noticias"
-                class="p-2 bg-white rounded-lg hover:bg-blue-50 transition-colors"
+                class="p-2 bg-white/95 dark:bg-gray-700/95 backdrop-blur-sm rounded-xl hover:bg-white dark:hover:bg-gray-600 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105"
                 title="Volver a noticias"
               >
-                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-6 h-6 text-slate-700 dark:text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
                 </svg>
               </button>
               <div>
-                <h1 class="text-3xl md:text-4xl font-extrabold text-white tracking-tight">
+                <h1 class="text-3xl md:text-4xl font-black text-white tracking-tight drop-shadow-lg bg-gradient-to-r from-white via-slate-100 to-blue-100 bg-clip-text text-transparent">
                   Planes y Suscripciones
                 </h1>
-                <p class="text-blue-100 text-sm md:text-base mt-1">
+                <p class="text-blue-100 dark:text-blue-200 text-sm md:text-base mt-1 font-semibold drop-shadow-md">
                   Elige el plan que mejor se adapte a tus necesidades
                 </p>
               </div>
@@ -43,14 +45,18 @@ import Swal from 'sweetalert2';
         <div class="max-w-6xl mx-auto">
           <!-- Plan Actual -->
           <div class="mb-8 text-center">
-            <div class="inline-flex items-center px-4 py-2 rounded-full bg-white shadow-lg">
-              <span class="text-sm font-medium text-gray-600 mr-2">Plan actual:</span>
+            <div class="inline-flex items-center px-4 py-2 rounded-full bg-white dark:bg-gray-800 shadow-lg dark:shadow-gray-900/50 border border-gray-200 dark:border-gray-700">
+              <span class="text-sm font-medium text-gray-600 dark:text-gray-300 mr-2">Plan actual:</span>
               <span 
                 class="text-sm font-bold px-3 py-1 rounded-full"
                 [class.bg-blue-100]="planActual === 'free'"
+                [class.dark:bg-blue-900/30]="planActual === 'free'"
                 [class.text-blue-800]="planActual === 'free'"
-                [class.bg-purple-100]="planActual === 'pro'"
-                [class.text-purple-800]="planActual === 'pro'"
+                [class.dark:text-blue-200]="planActual === 'free'"
+                [class.bg-slate-100]="planActual === 'pro'"
+                [class.dark:bg-slate-800/50]="planActual === 'pro'"
+                [class.text-slate-800]="planActual === 'pro'"
+                [class.dark:text-slate-200]="planActual === 'pro'"
               >
                 {{ planActual === 'free' ? 'FREE' : 'PRO' }}
               </span>
@@ -61,9 +67,10 @@ import Swal from 'sweetalert2';
           <div class="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
             <!-- Plan Free -->
             <div 
-              class="bg-white rounded-2xl shadow-xl border-2 transition-all duration-300"
-              [class.border-blue-500]="planActual === 'free'"
+              class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl dark:shadow-gray-900/50 border-2 transition-all duration-300"
+              [class.border-slate-500]="planActual === 'free'"
               [class.border-gray-200]="planActual !== 'free'"
+              [class.dark:border-gray-700]="planActual !== 'free'"
               [class.transform]="planActual === 'free'"
               [class.scale-105]="planActual === 'free'"
             >
@@ -75,12 +82,12 @@ import Swal from 'sweetalert2';
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
                     </svg>
                   </div>
-                  <h3 class="text-2xl font-bold text-gray-900 mb-2">Plan Free</h3>
-                  <div class="text-4xl font-extrabold text-gray-900 mb-1">
+                  <h3 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Plan Free</h3>
+                  <div class="text-4xl font-extrabold text-gray-900 dark:text-gray-100 mb-1">
                     $0
-                    <span class="text-lg font-normal text-gray-500">/mes</span>
+                    <span class="text-lg font-normal text-gray-500 dark:text-gray-400">/mes</span>
                   </div>
-                  <p class="text-gray-600 text-sm">Perfecto para empezar</p>
+                  <p class="text-gray-600 dark:text-gray-400 text-sm">Perfecto para empezar</p>
                 </div>
 
                 <!-- Features -->
@@ -89,31 +96,31 @@ import Swal from 'sweetalert2';
                     <svg class="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                     </svg>
-                    <span class="text-gray-700">Búsqueda de noticias</span>
+                    <span class="text-gray-700 dark:text-gray-300">Búsqueda de noticias</span>
                   </li>
                   <li class="flex items-start">
                     <svg class="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                     </svg>
-                    <span class="text-gray-700">Lectura ilimitada de noticias</span>
+                    <span class="text-gray-700 dark:text-gray-300">Lectura ilimitada de noticias</span>
                   </li>
                   <li class="flex items-start">
                     <svg class="w-5 h-5 text-red-500 mr-3 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                     </svg>
-                    <span class="text-gray-500 line-through">Guardar en favoritos</span>
+                    <span class="text-gray-500 dark:text-gray-500 line-through">Guardar en favoritos</span>
                   </li>
                   <li class="flex items-start">
                     <svg class="w-5 h-5 text-red-500 mr-3 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                     </svg>
-                    <span class="text-gray-500 line-through">Historial de lectura</span>
+                    <span class="text-gray-500 dark:text-gray-500 line-through">Historial de lectura</span>
                   </li>
                   <li class="flex items-start">
                     <svg class="w-5 h-5 text-red-500 mr-3 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                     </svg>
-                    <span class="text-gray-500 line-through">Filtros avanzados</span>
+                    <span class="text-gray-500 dark:text-gray-500 line-through">Filtros avanzados</span>
                   </li>
                 </ul>
 
@@ -121,14 +128,14 @@ import Swal from 'sweetalert2';
                 <button
                   *ngIf="planActual === 'free'"
                   disabled
-                  class="w-full py-3 px-4 bg-gray-300 text-gray-500 rounded-lg font-semibold cursor-not-allowed"
+                  class="w-full py-3 px-4 bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 rounded-xl font-bold cursor-not-allowed shadow-lg"
                 >
                   Plan Actual
                 </button>
                 <button
                   *ngIf="planActual !== 'free'"
                   (click)="cambiarPlan('free')"
-                  class="w-full py-3 px-4 bg-gray-600 text-white rounded-lg font-semibold hover:bg-gray-700 transition-colors"
+                  class="w-full py-3 px-4 bg-gradient-to-r from-gray-600 to-gray-700 dark:from-gray-700 dark:to-gray-800 text-white rounded-xl font-bold hover:from-gray-700 hover:to-gray-800 dark:hover:from-gray-600 dark:hover:to-gray-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 transform"
                 >
                   Cambiar a Free
                 </button>
@@ -137,11 +144,11 @@ import Swal from 'sweetalert2';
 
             <!-- Plan Pro -->
             <div 
-              class="bg-gradient-to-br from-purple-600 to-purple-800 rounded-2xl shadow-2xl border-2 border-purple-500 transition-all duration-300 transform relative overflow-hidden"
+              class="bg-gradient-to-br from-slate-600 via-blue-600 to-teal-600 rounded-2xl shadow-2xl border-2 border-slate-500 dark:border-slate-400 transition-all duration-300 transform relative overflow-hidden"
               [class.scale-105]="planActual === 'pro'"
             >
               <!-- Badge -->
-              <div class="absolute top-0 right-0 bg-yellow-400 text-yellow-900 px-4 py-1 text-xs font-bold rounded-bl-lg">
+              <div class="absolute top-0 right-0 bg-yellow-400 text-yellow-900 px-4 py-1 text-xs font-bold rounded-bl-lg shadow-lg">
                 RECOMENDADO
               </div>
               
@@ -158,7 +165,7 @@ import Swal from 'sweetalert2';
                     $9.99
                     <span class="text-lg font-normal opacity-80">/mes</span>
                   </div>
-                  <p class="text-purple-100 text-sm">Acceso completo a todas las funciones</p>
+                  <p class="text-white/90 text-sm">Acceso completo a todas las funciones</p>
                 </div>
 
                 <!-- Features -->
@@ -167,37 +174,37 @@ import Swal from 'sweetalert2';
                     <svg class="w-5 h-5 text-yellow-300 mr-3 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                     </svg>
-                    <span>Búsqueda de noticias</span>
+                    <span class="text-white">Búsqueda de noticias</span>
                   </li>
                   <li class="flex items-start">
                     <svg class="w-5 h-5 text-yellow-300 mr-3 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                     </svg>
-                    <span>Lectura ilimitada de noticias</span>
+                    <span class="text-white">Lectura ilimitada de noticias</span>
                   </li>
                   <li class="flex items-start">
                     <svg class="w-5 h-5 text-yellow-300 mr-3 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                     </svg>
-                    <span>Guardar en favoritos</span>
+                    <span class="text-white">Guardar en favoritos</span>
                   </li>
                   <li class="flex items-start">
                     <svg class="w-5 h-5 text-yellow-300 mr-3 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                     </svg>
-                    <span>Historial de lectura</span>
+                    <span class="text-white">Historial de lectura</span>
                   </li>
                   <li class="flex items-start">
                     <svg class="w-5 h-5 text-yellow-300 mr-3 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                     </svg>
-                    <span>Filtros avanzados</span>
+                    <span class="text-white">Filtros avanzados</span>
                   </li>
                   <li class="flex items-start">
                     <svg class="w-5 h-5 text-yellow-300 mr-3 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                     </svg>
-                    <span>Soporte prioritario</span>
+                    <span class="text-white">Soporte prioritario</span>
                   </li>
                 </ul>
 
@@ -205,14 +212,14 @@ import Swal from 'sweetalert2';
                 <button
                   *ngIf="planActual === 'pro'"
                   disabled
-                  class="w-full py-3 px-4 bg-white bg-opacity-20 text-white rounded-lg font-semibold cursor-not-allowed border-2 border-white border-opacity-30"
+                  class="w-full py-3 px-4 bg-white/10 backdrop-blur-sm text-white rounded-xl font-bold cursor-not-allowed border-2 border-white/30 shadow-lg"
                 >
                   Plan Actual
                 </button>
                 <button
                   *ngIf="planActual !== 'pro'"
                   (click)="cambiarPlan('pro')"
-                  class="w-full py-3 px-4 bg-yellow-400 text-yellow-900 rounded-lg font-semibold hover:bg-yellow-300 transition-colors shadow-lg"
+                  class="w-full py-3 px-4 bg-yellow-400 text-yellow-900 rounded-xl font-bold hover:bg-yellow-300 transition-all duration-300 shadow-xl hover:shadow-2xl hover:scale-105 transform"
                 >
                   Actualizar a Pro
                 </button>
@@ -222,9 +229,9 @@ import Swal from 'sweetalert2';
 
           <!-- Info adicional -->
           <div class="mt-12 text-center">
-            <p class="text-gray-600 text-sm">
+            <p class="text-gray-600 dark:text-gray-400 text-sm">
               Todos los planes incluyen acceso completo a las noticias. 
-              <a routerLink="/noticias" class="text-blue-600 hover:text-blue-800 font-medium">
+              <a routerLink="/noticias" class="text-slate-600 dark:text-teal-400 hover:text-slate-800 dark:hover:text-teal-300 font-medium transition-colors">
                 Volver a noticias
               </a>
             </p>
@@ -250,20 +257,33 @@ import Swal from 'sweetalert2';
       padding: 0 !important;
     }
 
+    @keyframes shimmer {
+      0% {
+        transform: translateX(-100%) translateY(0) rotate(-12deg);
+      }
+      100% {
+        transform: translateX(200%) translateY(0) rotate(-12deg);
+      }
+    }
+
+    .animate-shimmer {
+      animation: shimmer 3s infinite;
+    }
+
     :host ::ng-deep .swal2-confirm-custom {
-      background: linear-gradient(135deg, #9333ea 0%, #7c3aed 100%) !important;
+      background: linear-gradient(135deg, #475569 0%, #1e40af 100%) !important;
       border: none !important;
       border-radius: 12px !important;
       padding: 14px 32px !important;
       font-size: 16px !important;
       font-weight: 600 !important;
-      box-shadow: 0 4px 15px rgba(147, 51, 234, 0.4) !important;
+      box-shadow: 0 4px 15px rgba(71, 85, 105, 0.4) !important;
       transition: all 0.3s ease !important;
     }
 
     :host ::ng-deep .swal2-confirm-custom:hover {
       transform: translateY(-2px) !important;
-      box-shadow: 0 6px 20px rgba(147, 51, 234, 0.5) !important;
+      box-shadow: 0 6px 20px rgba(30, 64, 175, 0.5) !important;
     }
 
     :host ::ng-deep .swal2-cancel-custom {

@@ -10,26 +10,28 @@ import Swal from 'sweetalert2';
   standalone: true,
   imports: [CommonModule, RouterModule],
   template: `
-    <div class="min-h-screen bg-gray-50">
+    <div class="min-h-screen bg-gradient-to-br from-gray-50 via-slate-50/30 to-blue-50/30 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
       <!-- Header -->
-      <header class="bg-gradient-to-r from-blue-600 to-blue-800 shadow-2xl border-b border-blue-900">
-        <div class="w-full px-4 sm:px-6 lg:px-8 py-6">
+      <header class="bg-gradient-to-r from-slate-700 via-blue-700 to-teal-600 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800 shadow-2xl border-b-4 border-slate-500/50 dark:border-gray-700 relative z-50">
+        <!-- Efecto de brillo animado en el header -->
+        <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -skew-x-12 animate-shimmer overflow-hidden"></div>
+        <div class="w-full px-4 sm:px-6 lg:px-8 py-4 md:py-5 relative">
           <div class="flex items-center justify-between">
             <div class="flex items-center space-x-4">
               <button
                 routerLink="/noticias"
-                class="p-2 bg-white rounded-lg hover:bg-blue-50 transition-colors"
+                class="p-2 bg-white/95 dark:bg-gray-700/95 backdrop-blur-sm rounded-xl hover:bg-white dark:hover:bg-gray-600 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105"
                 title="Volver a noticias"
               >
-                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-6 h-6 text-slate-700 dark:text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
                 </svg>
               </button>
               <div>
-                <h1 class="text-3xl md:text-4xl font-extrabold text-white tracking-tight">
+                <h1 class="text-3xl md:text-4xl font-black text-white tracking-tight drop-shadow-lg bg-gradient-to-r from-white via-slate-100 to-blue-100 bg-clip-text text-transparent">
                   Mis Favoritos
                 </h1>
-                <p class="text-blue-100 text-sm md:text-base mt-1">
+                <p class="text-blue-100 dark:text-blue-200 text-sm md:text-base mt-1 font-semibold drop-shadow-md">
                   Noticias guardadas como favoritas
                 </p>
               </div>
@@ -40,18 +42,18 @@ import Swal from 'sweetalert2';
 
       <div class="w-full px-4 sm:px-6 lg:px-8 py-6">
         <!-- Empty State -->
-        <div *ngIf="favoritos.length === 0" class="text-center py-12 bg-white rounded-lg shadow-md">
+        <div *ngIf="favoritos.length === 0" class="text-center py-12 bg-white dark:bg-gray-800 rounded-lg shadow-md dark:shadow-gray-900/50 border border-gray-200 dark:border-gray-700">
           <svg class="mx-auto h-16 w-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
           </svg>
-          <h3 class="mt-2 text-sm font-medium text-gray-900">No tienes favoritos</h3>
-          <p class="mt-1 text-sm text-gray-500">
+          <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-gray-100">No tienes favoritos</h3>
+          <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
             Las noticias que marques como favoritas aparecerán aquí.
           </p>
           <div class="mt-6">
             <button
               routerLink="/noticias"
-              class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+              class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-gradient-to-r from-slate-600 to-teal-600 hover:from-slate-700 hover:to-teal-700 transition-all duration-300"
             >
               Ver noticias
             </button>
@@ -62,7 +64,7 @@ import Swal from 'sweetalert2';
         <div *ngIf="favoritos.length > 0" class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           <article 
             *ngFor="let noticia of favoritos" 
-            class="bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-200 transform hover:-translate-y-1"
+            class="bg-gradient-to-br from-white to-gray-50/50 dark:from-gray-800 dark:to-gray-900 rounded-2xl shadow-xl dark:shadow-gray-900/50 hover:shadow-2xl dark:hover:shadow-gray-800/50 transition-all duration-300 overflow-hidden border-2 border-gray-200/50 dark:border-gray-700/50 ring-1 ring-gray-200/30 dark:ring-gray-700/30 transform hover:-translate-y-2 hover:scale-[1.02] group"
           >
             <!-- Image -->
             <div class="relative">
@@ -81,8 +83,8 @@ import Swal from 'sweetalert2';
               </div>
               <!-- Botón eliminar favorito -->
               <button
-                (click)="eliminarFavorito(noticia)"
-                class="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors shadow-lg"
+                (click)="eliminarFavorito(noticia); $event.stopPropagation()"
+                class="absolute top-3 right-3 p-2.5 bg-gradient-to-br from-red-500 to-red-600 text-white rounded-full hover:from-red-600 hover:to-red-700 transition-all duration-300 shadow-2xl hover:shadow-red-500/50 hover:scale-110 z-10 no-shimmer-button"
                 title="Eliminar de favoritos"
               >
                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -97,12 +99,12 @@ import Swal from 'sweetalert2';
               <div class="flex flex-col gap-2 mb-3">
                 <div class="flex items-center justify-between flex-wrap gap-2">
                   <div class="flex items-center gap-2 flex-wrap">
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200">
                       {{ noticia.fuente }}
                     </span>
                     <span 
                       *ngIf="obtenerUbicacion(noticia)" 
-                      class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800"
+                      class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200"
                     >
                       <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
@@ -111,19 +113,19 @@ import Swal from 'sweetalert2';
                       {{ obtenerUbicacion(noticia) }}
                     </span>
                   </div>
-                  <time class="text-xs text-gray-500" [dateTime]="noticia.fecha">
+                  <time class="text-xs text-gray-500 dark:text-gray-400" [dateTime]="noticia.fecha">
                     {{ formatearFecha(noticia.fecha) }}
                   </time>
                 </div>
               </div>
               
               <!-- Title -->
-              <h2 class="text-base font-semibold text-gray-900 mb-2 line-clamp-2 min-h-[3rem]">
+              <h2 class="text-base font-semibold text-gray-900 dark:text-gray-100 mb-2 line-clamp-2 min-h-[3rem]">
                 {{ noticia.titulo }}
               </h2>
               
               <!-- Content Preview -->
-              <p class="text-gray-600 text-sm mb-4 line-clamp-3">
+              <p class="text-gray-600 dark:text-gray-300 text-sm mb-4 line-clamp-3">
                 {{ noticia.contenido }}
               </p>
               
@@ -133,10 +135,10 @@ import Swal from 'sweetalert2';
                   [href]="noticia.link" 
                   target="_blank"
                   rel="noopener noreferrer"
-                  class="inline-flex items-center text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors duration-200"
+                  class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-slate-600 to-teal-600 text-white text-sm font-bold rounded-lg hover:from-slate-700 hover:to-teal-700 transition-all duration-300 cursor-pointer shadow-lg hover:shadow-xl hover:scale-105 transform group-hover:translate-x-1"
                 >
                   Leer más
-                  <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
                   </svg>
                 </a>
@@ -160,6 +162,27 @@ import Swal from 'sweetalert2';
       -webkit-line-clamp: 3;
       -webkit-box-orient: vertical;
       overflow: hidden;
+    }
+
+    @keyframes shimmer {
+      0% {
+        transform: translateX(-100%) translateY(0) rotate(-12deg);
+      }
+      100% {
+        transform: translateX(200%) translateY(0) rotate(-12deg);
+      }
+    }
+
+    .animate-shimmer {
+      animation: shimmer 3s infinite;
+    }
+
+    .no-shimmer-button:hover {
+      overflow: visible;
+    }
+
+    .no-shimmer-button:hover::before {
+      display: none;
     }
   `]
 })
