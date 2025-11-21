@@ -96,7 +96,10 @@ Deno.serve(async (req: Request) => {
       
       console.log('📤 Enviando email para solicitud:', paymentRequest.id);
 
-      const adminEmail = Deno.env.get('ADMIN_EMAIL') || 'jhosefqh123@gmail.com';
+      // SIEMPRE usar este email del admin (hardcodeado para garantizar que llegue)
+      const adminEmail = 'jhosefqh123@gmail.com';
+      console.log('📧 Email del admin configurado:', adminEmail);
+      
       const siteUrl = Deno.env.get('SITE_URL') || 'http://localhost:4200';
       const supabaseFunctionsUrl = supabaseUrl.replace('/rest/v1', '');
       
@@ -104,11 +107,15 @@ Deno.serve(async (req: Request) => {
       const approveUrl = `${supabaseFunctionsUrl}/functions/v1/send-payment-email?action=confirm&id=${paymentRequest.id}&status=approved`;
       const rejectUrl = `${supabaseFunctionsUrl}/functions/v1/send-payment-email?action=confirm&id=${paymentRequest.id}&status=rejected`;
 
+      console.log('📧 URLs de confirmación:');
+      console.log('  - Aprobar:', approveUrl);
+      console.log('  - Rechazar:', rejectUrl);
+
       // Enviar email usando Resend
       const resendApiKey = Deno.env.get('RESEND_API_KEY');
       
       if (!resendApiKey) {
-        console.warn('⚠️ RESEND_API_KEY no configurada, no se enviará email');
+        console.error('❌ RESEND_API_KEY no configurada');
         return new Response(
           JSON.stringify({ success: false, error: 'RESEND_API_KEY no configurada' }),
           {
@@ -121,16 +128,14 @@ Deno.serve(async (req: Request) => {
         );
       }
 
-      const emailResponse = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${resendApiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          from: 'Portal de Noticias <onboarding@resend.dev>',
-          to: adminEmail,
-          subject: 'Nueva solicitud de pago - Plan Pro',
+      console.log('📧 Enviando email a través de Resend...');
+      console.log('📧 Destinatario:', adminEmail);
+      console.log('📧 Asunto: Nueva solicitud de pago - Plan Pro');
+
+      const emailPayload = {
+        from: 'Portal de Noticias <onboarding@resend.dev>',
+        to: adminEmail,
+        subject: 'Nueva solicitud de pago - Plan Pro',
           html: `
             <!DOCTYPE html>
             <html>
@@ -177,17 +182,61 @@ Deno.serve(async (req: Request) => {
             </body>
             </html>
           `,
-        }),
+      };
+
+      console.log('📧 Payload del email:', JSON.stringify({
+        from: emailPayload.from,
+        to: emailPayload.to,
+        subject: emailPayload.subject,
+        html_length: emailPayload.html.length
+      }, null, 2));
+
+      const emailResponse = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${resendApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(emailPayload),
       });
+
+      console.log('📧 Respuesta de Resend - Status:', emailResponse.status);
+      console.log('📧 Respuesta de Resend - Status Text:', emailResponse.statusText);
 
       if (!emailResponse.ok) {
         const errorData = await emailResponse.text();
-        console.error('❌ Error enviando email:', errorData);
-        throw new Error(`Error enviando email: ${errorData}`);
+        console.error('❌ Error enviando email a Resend:');
+        console.error('  Status:', emailResponse.status);
+        console.error('  Error:', errorData);
+        
+        // Intentar parsear el error como JSON
+        try {
+          const errorJson = JSON.parse(errorData);
+          console.error('  Error JSON:', JSON.stringify(errorJson, null, 2));
+        } catch (e) {
+          console.error('  Error (texto):', errorData);
+        }
+        
+        return new Response(
+          JSON.stringify({ 
+            success: false, 
+            error: `Error enviando email: ${errorData}`,
+            status: emailResponse.status 
+          }),
+          {
+            headers: { 
+              ...corsHeaders,
+              'Content-Type': 'application/json' 
+            },
+            status: emailResponse.status,
+          }
+        );
       }
 
       const emailResult = await emailResponse.json();
-      console.log('✅ Email enviado exitosamente:', emailResult);
+      console.log('✅ Email enviado exitosamente a Resend:');
+      console.log('  Email ID:', emailResult.id);
+      console.log('  Resultado completo:', JSON.stringify(emailResult, null, 2));
 
       return new Response(
         JSON.stringify({ success: true, message: 'Email enviado correctamente', emailId: emailResult.id }),
