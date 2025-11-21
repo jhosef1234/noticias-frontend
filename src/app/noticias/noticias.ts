@@ -646,7 +646,7 @@ export interface Noticia {
                       [src]="obtenerImagenPorDefecto(noticiaDestacada.id)"
                       [alt]="noticiaDestacada.titulo"
                       class="w-full h-64 md:h-full object-cover hover:scale-110 transition-transform duration-700"
-                      (error)="onImageError($event)"
+                      (error)="onImageErrorDefault($event, noticiaDestacada.id)"
                     />
                   </div>
                   
@@ -754,7 +754,7 @@ export interface Noticia {
                       [src]="obtenerImagenPorDefecto(noticia.id)"
                       [alt]="noticia.titulo"
                       class="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
-                      (error)="onImageError($event)"
+                      (error)="onImageErrorDefault($event, noticia.id)"
                     />
                     <!-- Botón Favorito -->
                     <button
@@ -1776,11 +1776,30 @@ export class PortalNoticiasComponent implements OnInit, OnDestroy {
   // Esto asegura que la misma noticia siempre tenga la misma imagen
   obtenerImagenPorDefecto(noticiaId: number): string {
     if (this.imagenesPorDefecto.length === 0) {
-      return '/assets/images/portadas-periodicos.jpg'; // Fallback
+      return 'assets/images/portadas-periodicos.jpg'; // Fallback
     }
     // Usar el ID de la noticia como semilla para seleccionar una imagen
     const indice = noticiaId % this.imagenesPorDefecto.length;
-    return `/assets/images/${this.imagenesPorDefecto[indice]}`;
+    return `assets/images/${this.imagenesPorDefecto[indice]}`;
+  }
+
+  // Manejar error de carga de imagen por defecto e intentar con otra
+  onImageErrorDefault(event: any, noticiaId: number) {
+    const img = event.target;
+    const currentSrc = img.src;
+    
+    // Extraer el nombre del archivo actual
+    const currentFileName = currentSrc.split('/').pop();
+    const currentIndex = this.imagenesPorDefecto.indexOf(currentFileName);
+    
+    // Intentar con la siguiente imagen del array
+    if (currentIndex >= 0 && currentIndex < this.imagenesPorDefecto.length - 1) {
+      const nextIndex = (currentIndex + 1) % this.imagenesPorDefecto.length;
+      img.src = `assets/images/${this.imagenesPorDefecto[nextIndex]}`;
+    } else {
+      // Si no se puede determinar o es la última, intentar con la primera
+      img.src = `assets/images/${this.imagenesPorDefecto[0]}`;
+    }
   }
 
   // Utilidades
