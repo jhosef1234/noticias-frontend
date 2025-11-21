@@ -1372,51 +1372,51 @@ export class PortalNoticiasComponent implements OnInit, OnDestroy {
     Swal.fire({
       title: '<div style="font-size: 28px; font-weight: 700; color: #1e293b; margin-bottom: 8px;">✨ Plan Pro Requerido</div>',
       html: `
-< div style = "text-align: center; padding: 20px 0;" >
-<div style="background: linear-gradient(135deg, #475569 0%, #1e40af 100%); width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 25px rgba(71, 85, 105, 0.3);" >
-<svg style="width: 45px; height: 45px; color: white;" fill = "none" stroke = "currentColor" viewBox = "0 0 24 24" >
-<path stroke - linecap="round" stroke - linejoin="round" stroke - width="2" d = "M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-</svg>
-</div>
-< p style = "font-size: 18px; color: #475569; margin-bottom: 24px; font-weight: 500;" >
-Para < span style = "color: #1e40af; font-weight: 600;" > ${accion} </span> necesitas el Plan Pro
-</p>
-< div style = "background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border-radius: 16px; padding: 24px; margin: 20px 0; border: 2px solid #e2e8f0;" >
-<p style="font-size: 16px; font-weight: 600; color: #1e293b; margin-bottom: 16px; text-align: left;" >
-              🎯 El Plan Pro incluye:
+<div style="text-align: center; padding: 20px 0;">
+  <div style="background: linear-gradient(135deg, #475569 0%, #1e40af 100%); width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 25px rgba(71, 85, 105, 0.3);">
+    <svg style="width: 45px; height: 45px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
+    </svg>
+  </div>
+  <p style="font-size: 18px; color: #475569; margin-bottom: 24px; font-weight: 500;">
+    Para <span style="color: #1e40af; font-weight: 600;">${accion}</span> necesitas el Plan Pro
   </p>
-  < div style = "text-align: left; space-y: 12px;" >
-  <div style="display: flex; align-items: center; margin-bottom: 12px; padding: 10px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);" >
-<div style="background: linear-gradient(135deg, #475569 0%, #334155 100%); width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 12px; flex-shrink: 0;" >
-<svg style="width: 18px; height: 18px; color: white;" fill = "none" stroke = "currentColor" viewBox = "0 0 24 24" >
-<path stroke - linecap="round" stroke - linejoin="round" stroke - width="2" d = "M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-</svg>
+  <div style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border-radius: 16px; padding: 24px; margin: 20px 0; border: 2px solid #e2e8f0;">
+    <p style="font-size: 16px; font-weight: 600; color: #1e293b; margin-bottom: 16px; text-align: left;">
+      🎯 El Plan Pro incluye:
+    </p>
+    <div style="text-align: left;">
+      <div style="display: flex; align-items: center; margin-bottom: 12px; padding: 10px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+        <div style="background: linear-gradient(135deg, #475569 0%, #334155 100%); width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 12px; flex-shrink: 0;">
+          <svg style="width: 18px; height: 18px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
+          </svg>
+        </div>
+        <span style="font-size: 15px; color: #334155; font-weight: 500;">Filtros avanzados (categoría, fuente, autores)</span>
+      </div>
+      <div style="display: flex; align-items: center; margin-bottom: 12px; padding: 10px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+        <div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 12px; flex-shrink: 0;">
+          <svg style="width: 18px; height: 18px; color: white;" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
+          </svg>
+        </div>
+        <span style="font-size: 15px; color: #334155; font-weight: 500;">Guardar en favoritos</span>
+      </div>
+      <div style="display: flex; align-items: center; padding: 10px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+        <div style="background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%); width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 12px; flex-shrink: 0;">
+          <svg style="width: 18px; height: 18px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+        </div>
+        <span style="font-size: 15px; color: #334155; font-weight: 500;">Historial de lectura</span>
+      </div>
+    </div>
+  </div>
+  <p style="font-size: 14px; color: #64748b; margin-top: 20px; font-style: italic;">
+    💡 Desbloquea todas las funciones premium
+  </p>
 </div>
-< span style = "font-size: 15px; color: #334155; font-weight: 500;" > Filtros avanzados(categoría, fuente, autores) </span>
-</div>
-< div style = "display: flex; align-items: center; margin-bottom: 12px; padding: 10px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);" >
-<div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 12px; flex-shrink: 0;" >
-<svg style="width: 18px; height: 18px; color: white;" fill = "currentColor" viewBox = "0 0 20 20" >
-<path fill - rule="evenodd" d = "M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip - rule="evenodd" />
-</svg>
-</div>
-< span style = "font-size: 15px; color: #334155; font-weight: 500;" > Guardar en favoritos </span>
-</div>
-< div style = "display: flex; align-items: center; padding: 10px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);" >
-<div style="background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%); width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 12px; flex-shrink: 0;" >
-<svg style="width: 18px; height: 18px; color: white;" fill = "none" stroke = "currentColor" viewBox = "0 0 24 24" >
-<path stroke - linecap="round" stroke - linejoin="round" stroke - width="2" d = "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-</svg>
-</div>
-< span style = "font-size: 15px; color: #334155; font-weight: 500;" > Historial de lectura </span>
-</div>
-</div>
-</div>
-< p style = "font-size: 14px; color: #64748b; margin-top: 20px; font-style: italic;" >
-            💡 Desbloquea todas las funciones premium
-</p>
-</div>
-  `,
+      `,
       icon: undefined,
       showCancelButton: true,
       confirmButtonText: '<div style="display: flex; align-items: center; gap: 8px;"><svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg> Ver Planes</div>',
