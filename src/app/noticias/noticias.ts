@@ -641,11 +641,13 @@ export interface Noticia {
                       (error)="onImageError($event)"
                     />
                     <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
-                    <div *ngIf="!noticiaDestacada.imagen_url" class="w-full h-64 md:h-full bg-gradient-to-br from-slate-600 via-blue-600 to-teal-600 flex items-center justify-center">
-                      <svg class="w-24 h-24 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
-                      </svg>
-                    </div>
+                    <img 
+                      *ngIf="!noticiaDestacada.imagen_url"
+                      [src]="obtenerImagenPorDefecto(noticiaDestacada.id)"
+                      [alt]="noticiaDestacada.titulo"
+                      class="w-full h-64 md:h-full object-cover hover:scale-110 transition-transform duration-700"
+                      (error)="onImageError($event)"
+                    />
                   </div>
                   
                   <!-- Content -->
@@ -747,11 +749,13 @@ export interface Noticia {
                       />
                       <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                     </div>
-                    <div *ngIf="!noticia.imagen_url" class="w-full h-48 bg-gradient-to-br from-slate-500 via-blue-500 to-teal-500 flex items-center justify-center">
-                      <svg class="w-16 h-16 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
-                      </svg>
-                    </div>
+                    <img 
+                      *ngIf="!noticia.imagen_url"
+                      [src]="obtenerImagenPorDefecto(noticia.id)"
+                      [alt]="noticia.titulo"
+                      class="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
+                      (error)="onImageError($event)"
+                    />
                     <!-- Botón Favorito -->
                     <button
                       (click)="toggleFavorito(noticia); $event.stopPropagation()"
@@ -1140,6 +1144,28 @@ export class PortalNoticiasComponent implements OnInit, OnDestroy {
 
   // Para usar Math en el template
   Math = Math;
+
+  // Array de imágenes por defecto
+  private imagenesPorDefecto: string[] = [
+    'portadas-periodicos.jpg',
+    'images.jpeg',
+    'images (1).jpeg',
+    'images (2).jpeg',
+    'images (3).jpeg',
+    'images (4).jpeg',
+    'images (5).jpeg',
+    'images (6).jpeg',
+    'images (7).jpeg',
+    'depositphotos_6898984-stock-photo-worldwide-news-background.jpg',
+    '25361590-ilustración-de-un-periódico-con-noticias-relacionadas-texto-texto-lorem-ipsum.jpg',
+    '18003446-illustrated-of-a-newspaper-with-news-related-text.jpg',
+    'hq720.jpg',
+    '1600w-Vh4S5Wt7FD4.webp',
+    'istockphoto-1044823920-612x612.jpg',
+    'randomly-scattered-scraps-old-newspapers-600nw-2489094873.webp',
+    'pngtree-newspapers-press-writing-news-photo-picture-image_5208303.jpg',
+    '1600w-pLEn7AqlMis.webp'
+  ];
 
   constructor(
     private readonly router: Router,
@@ -1744,6 +1770,17 @@ export class PortalNoticiasComponent implements OnInit, OnDestroy {
 
   private scrollToTop() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // Obtener imagen aleatoria por defecto basada en el ID de la noticia
+  // Esto asegura que la misma noticia siempre tenga la misma imagen
+  obtenerImagenPorDefecto(noticiaId: number): string {
+    if (this.imagenesPorDefecto.length === 0) {
+      return '/assets/images/portadas-periodicos.jpg'; // Fallback
+    }
+    // Usar el ID de la noticia como semilla para seleccionar una imagen
+    const indice = noticiaId % this.imagenesPorDefecto.length;
+    return `/assets/images/${this.imagenesPorDefecto[indice]}`;
   }
 
   // Utilidades
