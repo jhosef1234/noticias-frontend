@@ -83,7 +83,7 @@ import { PlanService } from '../../services/plan.service';
                   name="fullName"
                   required
                   placeholder="Juan Pérez"
-                  class="input-field pl-12 block w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all bg-gray-50 focus:bg-white hover:border-gray-300"
+                  class="input-field pl-12 block w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all bg-gray-50 focus:bg-white hover:border-gray-300 text-gray-900 placeholder-gray-400"
                 />
               </div>
             </div>
@@ -106,7 +106,7 @@ import { PlanService } from '../../services/plan.service';
                   name="email"
                   required
                   placeholder="tu@email.com"
-                  class="input-field pl-12 block w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all bg-gray-50 focus:bg-white hover:border-gray-300"
+                  class="input-field pl-12 block w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all bg-gray-50 focus:bg-white hover:border-gray-300 text-gray-900 placeholder-gray-400"
                 />
               </div>
             </div>
@@ -130,7 +130,7 @@ import { PlanService } from '../../services/plan.service';
                   required
                   placeholder="Mínimo 6 caracteres"
                   minlength="6"
-                  class="input-field pl-12 pr-12 block w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all bg-gray-50 focus:bg-white hover:border-gray-300"
+                  class="input-field pl-12 pr-12 block w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all bg-gray-50 focus:bg-white hover:border-gray-300 text-gray-900 placeholder-gray-400"
                 />
                 <button
                   type="button"
@@ -167,7 +167,7 @@ import { PlanService } from '../../services/plan.service';
                   name="confirmPassword"
                   required
                   placeholder="Confirma tu contraseña"
-                  class="input-field pl-12 pr-12 block w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all bg-gray-50 focus:bg-white hover:border-gray-300"
+                  class="input-field pl-12 pr-12 block w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all bg-gray-50 focus:bg-white hover:border-gray-300 text-gray-900 placeholder-gray-400"
                 />
                 <button
                   type="button"

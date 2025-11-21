@@ -83,7 +83,7 @@ import { PlanService } from '../../services/plan.service';
                   name="email"
                   required
                   placeholder="tu@email.com"
-                  class="input-field pl-12 block w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all bg-gray-50 focus:bg-white hover:border-gray-300"
+                  class="input-field pl-12 block w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all bg-gray-50 focus:bg-white hover:border-gray-300 text-gray-900 placeholder-gray-400"
                 />
               </div>
             </div>
@@ -106,7 +106,7 @@ import { PlanService } from '../../services/plan.service';
                   name="password"
                   required
                   placeholder="••••••••"
-                  class="input-field pl-12 pr-12 block w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all bg-gray-50 focus:bg-white hover:border-gray-300"
+                  class="input-field pl-12 pr-12 block w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all bg-gray-50 focus:bg-white hover:border-gray-300 text-gray-900 placeholder-gray-400"
                 />
                 <button
                   type="button"

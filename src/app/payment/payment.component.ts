@@ -60,7 +60,7 @@ import Swal from 'sweetalert2';
                     name="name"
                     required
                     placeholder="Juan Pérez"
-                    class="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                    class="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all text-gray-900 bg-white placeholder-gray-400"
                   />
                 </div>
 
@@ -77,7 +77,7 @@ import Swal from 'sweetalert2';
                     required
                     placeholder="987654321"
                     pattern="[0-9]{9}"
-                    class="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                    class="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all text-gray-900 bg-white placeholder-gray-400"
                   />
                   <p class="mt-1 text-xs text-gray-500">Ingresa tu número de celular (9 dígitos)</p>
                 </div>
@@ -94,7 +94,7 @@ import Swal from 'sweetalert2';
                     name="email"
                     required
                     placeholder="tu@email.com"
-                    class="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                    class="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all text-gray-900 bg-white placeholder-gray-400"
                   />
                 </div>
 
@@ -110,7 +110,7 @@ import Swal from 'sweetalert2';
                     name="paymentDate"
                     required
                     [max]="todayDate"
-                    class="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                    class="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all text-gray-900 bg-white"
                   />
                   <p class="mt-1 text-xs text-gray-500">Selecciona la fecha en que realizaste el pago</p>
                 </div>
@@ -126,7 +126,7 @@ import Swal from 'sweetalert2';
                     [(ngModel)]="formData.paymentTime"
                     name="paymentTime"
                     required
-                    class="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                    class="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all text-gray-900 bg-white"
                   />
                   <p class="mt-1 text-xs text-gray-500">Indica la hora aproximada en que realizaste el pago</p>
                 </div>
