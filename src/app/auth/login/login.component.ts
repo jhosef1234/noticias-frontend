@@ -31,7 +31,7 @@ import { PlanService } from '../../services/plan.service';
             </svg>
           </div>
           <h2 class="text-5xl font-black text-white mb-3 drop-shadow-lg bg-gradient-to-r from-white via-blue-100 to-purple-200 bg-clip-text text-transparent animate-fade-in">
-            NotiNow
+            Noticias al Día
           </h2>
           <p class="text-blue-100 text-xl font-medium tracking-wide">
             Inicia sesión para continuar
@@ -190,7 +190,7 @@ import { PlanService } from '../../services/plan.service';
 
         <!-- Footer mejorado -->
         <p class="text-center text-sm text-white/80 font-medium drop-shadow-lg">
-          © 2025 NotiNow. Todos los derechos reservados.
+          © 2025 Noticias al Día. Todos los derechos reservados.
         </p>
       </div>
     </div>
