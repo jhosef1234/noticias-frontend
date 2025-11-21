@@ -90,12 +90,9 @@ export interface Noticia {
             <div class="flex items-center gap-1 sm:gap-1.5 justify-end flex-nowrap">
               <!-- Botón Favoritos -->
               <button
-                routerLink="/favoritos"
-                [disabled]="!planService.isPro()"
-                [class.opacity-50]="!planService.isPro()"
-                [class.cursor-not-allowed]="!planService.isPro()"
+                (click)="irAFavoritos()"
                 class="px-2 py-1.5 bg-white/95 dark:bg-gray-700/95 backdrop-blur-sm text-yellow-600 dark:text-yellow-400 text-xs font-bold rounded-full hover:bg-gradient-to-r hover:from-yellow-50 hover:to-yellow-100 dark:hover:bg-gray-600 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 border-2 border-yellow-200/50 dark:border-yellow-700/50 flex items-center gap-1 whitespace-nowrap flex-shrink-0 relative z-10"
-                [title]="planService.isPro() ? 'Mis favoritos' : 'Actualiza a Pro para usar favoritos'"
+                title="Mis favoritos"
               >
                 <svg class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
@@ -105,12 +102,9 @@ export interface Noticia {
               
               <!-- Botón Historial -->
               <button
-                routerLink="/historial"
-                [disabled]="!planService.isPro()"
-                [class.opacity-50]="!planService.isPro()"
-                [class.cursor-not-allowed]="!planService.isPro()"
+                (click)="irAHistorial()"
                 class="px-2 py-1.5 bg-white/95 dark:bg-gray-700/95 backdrop-blur-sm text-teal-600 dark:text-teal-400 text-xs font-bold rounded-full hover:bg-gradient-to-r hover:from-teal-50 hover:to-cyan-50 dark:hover:bg-gray-600 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 border-2 border-teal-200/50 dark:border-teal-700/50 flex items-center gap-1 whitespace-nowrap flex-shrink-0 relative z-10"
-                [title]="planService.isPro() ? 'Historial' : 'Actualiza a Pro para usar historial'"
+                title="Historial"
               >
                 <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -286,12 +280,9 @@ export interface Noticia {
                 <div class="flex flex-wrap justify-end gap-1.5 sm:gap-1.5">
                   <!-- Botón Favoritos -->
                   <button
-                    routerLink="/favoritos"
-                    [disabled]="!planService.isPro()"
-                    [class.opacity-50]="!planService.isPro()"
-                    [class.cursor-not-allowed]="!planService.isPro()"
+                    (click)="irAFavoritos()"
                     class="px-2 sm:px-2.5 py-1.5 bg-white dark:bg-gray-700 text-yellow-600 dark:text-yellow-400 text-xs sm:text-sm font-semibold rounded-full hover:bg-yellow-50 dark:hover:bg-gray-600 transition-colors shadow-lg flex items-center gap-1 flex-shrink-0"
-                    [title]="planService.isPro() ? 'Mis favoritos' : 'Actualiza a Pro para usar favoritos'"
+                    title="Mis favoritos"
                   >
                     <svg class="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                       <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
@@ -301,12 +292,9 @@ export interface Noticia {
                   
                   <!-- Botón Historial -->
                   <button
-                    routerLink="/historial"
-                    [disabled]="!planService.isPro()"
-                    [class.opacity-50]="!planService.isPro()"
-                    [class.cursor-not-allowed]="!planService.isPro()"
+                    (click)="irAHistorial()"
                     class="px-2 sm:px-2.5 py-1.5 bg-white dark:bg-gray-700 text-teal-600 dark:text-teal-400 text-xs sm:text-sm font-semibold rounded-full hover:bg-teal-50 dark:hover:bg-gray-600 transition-colors shadow-lg flex items-center gap-1 flex-shrink-0"
-                    [title]="planService.isPro() ? 'Historial' : 'Actualiza a Pro para usar historial'"
+                    title="Historial"
                   >
                     <svg class="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -1402,13 +1390,29 @@ export class PortalNoticiasComponent implements OnInit, OnDestroy {
         </div>
         <span style="font-size: 15px; color: #334155; font-weight: 500;">Guardar en favoritos</span>
       </div>
-      <div style="display: flex; align-items: center; padding: 10px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+      <div style="display: flex; align-items: center; margin-bottom: 12px; padding: 10px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
         <div style="background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%); width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 12px; flex-shrink: 0;">
           <svg style="width: 18px; height: 18px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
           </svg>
         </div>
         <span style="font-size: 15px; color: #334155; font-weight: 500;">Historial de lectura</span>
+      </div>
+      <div style="display: flex; align-items: center; margin-bottom: 12px; padding: 10px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+        <div style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 12px; flex-shrink: 0;">
+          <svg style="width: 18px; height: 18px; color: white;" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+          </svg>
+        </div>
+        <span style="font-size: 15px; color: #334155; font-weight: 500;">Lo más popular</span>
+      </div>
+      <div style="display: flex; align-items: center; padding: 10px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+        <div style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 12px; flex-shrink: 0;">
+          <svg style="width: 18px; height: 18px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+          </svg>
+        </div>
+        <span style="font-size: 15px; color: #334155; font-weight: 500;">Autores destacados</span>
       </div>
     </div>
   </div>
@@ -1755,14 +1759,41 @@ export class PortalNoticiasComponent implements OnInit, OnDestroy {
   async cerrarSesion() {
     // Mostrar diálogo de confirmación
     const result = await Swal.fire({
-      title: '¿Está seguro?',
-      text: '¿Desea cerrar su sesión?',
-      icon: 'question',
+      title: '<div style="font-size: 28px; font-weight: 700; color: #1e293b; margin-bottom: 8px;">¿Está seguro?</div>',
+      html: `
+<div style="text-align: center; padding: 20px 0;">
+  <div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 25px rgba(245, 158, 11, 0.3);">
+    <svg style="width: 45px; height: 45px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+    </svg>
+  </div>
+  <p style="font-size: 18px; color: #475569; margin-bottom: 8px; font-weight: 600;">
+    ¿Desea cerrar su sesión?
+  </p>
+  <p style="font-size: 14px; color: #64748b; margin-top: 8px;">
+    Esta acción cerrará tu sesión actual y tendrás que iniciar sesión nuevamente para acceder a tus funciones.
+  </p>
+</div>
+      `,
+      icon: undefined,
       showCancelButton: true,
-      confirmButtonText: 'Sí, cerrar sesión',
-      cancelButtonText: 'No, cancelar',
+      confirmButtonText: '<div style="display: flex; align-items: center; gap: 8px;"><svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg> Sí, cerrar sesión</div>',
+      cancelButtonText: '<div style="display: flex; align-items: center; gap: 8px;">Cancelar</div>',
       confirmButtonColor: '#dc2626',
       cancelButtonColor: '#6b7280',
+      width: '500px',
+      padding: '2rem',
+      customClass: {
+        popup: 'swal2-popup-custom',
+        title: 'swal2-title-custom',
+        htmlContainer: 'swal2-html-container-custom',
+        confirmButton: 'swal2-confirm-custom',
+        cancelButton: 'swal2-cancel-custom'
+      },
+      buttonsStyling: true,
+      backdrop: true,
+      allowOutsideClick: true,
+      allowEscapeKey: true,
       reverseButtons: true
     });
 
@@ -1772,22 +1803,74 @@ export class PortalNoticiasComponent implements OnInit, OnDestroy {
       if (signOutResult.success) {
         // Mostrar mensaje de confirmación de éxito
         await Swal.fire({
-          title: '¡Sesión cerrada!',
-          text: 'Has cerrado sesión exitosamente.',
-          icon: 'success',
-          confirmButtonText: 'Aceptar',
-          confirmButtonColor: '#2563eb'
+          title: '<div style="font-size: 28px; font-weight: 700; color: #1e293b; margin-bottom: 8px;">¡Sesión cerrada!</div>',
+          html: `
+<div style="text-align: center; padding: 20px 0;">
+  <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);">
+    <svg style="width: 45px; height: 45px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+    </svg>
+  </div>
+  <p style="font-size: 18px; color: #475569; margin-bottom: 8px; font-weight: 500;">
+    Has cerrado sesión exitosamente.
+  </p>
+  <p style="font-size: 14px; color: #64748b; margin-top: 8px;">
+    Gracias por usar nuestro portal de noticias.
+  </p>
+</div>
+          `,
+          icon: undefined,
+          confirmButtonText: '<div style="display: flex; align-items: center; gap: 8px;"><svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Aceptar</div>',
+          confirmButtonColor: '#10b981',
+          width: '450px',
+          padding: '2rem',
+          customClass: {
+            popup: 'swal2-popup-custom',
+            title: 'swal2-title-custom',
+            htmlContainer: 'swal2-html-container-custom',
+            confirmButton: 'swal2-confirm-custom'
+          },
+          buttonsStyling: true,
+          backdrop: true,
+          allowOutsideClick: true,
+          allowEscapeKey: true
         });
         // Después de cerrar sesión, quedarse en la página de noticias
         this.router.navigate(['/noticias']);
       } else {
         // Si hubo un error al cerrar sesión
         await Swal.fire({
-          title: 'Error',
-          text: 'No se pudo cerrar la sesión. Por favor, intente nuevamente.',
-          icon: 'error',
-          confirmButtonText: 'Aceptar',
-          confirmButtonColor: '#dc2626'
+          title: '<div style="font-size: 28px; font-weight: 700; color: #1e293b; margin-bottom: 8px;">Error</div>',
+          html: `
+<div style="text-align: center; padding: 20px 0;">
+  <div style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 25px rgba(239, 68, 68, 0.3);">
+    <svg style="width: 45px; height: 45px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+    </svg>
+  </div>
+  <p style="font-size: 18px; color: #475569; margin-bottom: 8px; font-weight: 500;">
+    No se pudo cerrar la sesión
+  </p>
+  <p style="font-size: 14px; color: #64748b; margin-top: 8px;">
+    Por favor, intente nuevamente.
+  </p>
+</div>
+          `,
+          icon: undefined,
+          confirmButtonText: '<div style="display: flex; align-items: center; gap: 8px;"><svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg> Aceptar</div>',
+          confirmButtonColor: '#dc2626',
+          width: '450px',
+          padding: '2rem',
+          customClass: {
+            popup: 'swal2-popup-custom',
+            title: 'swal2-title-custom',
+            htmlContainer: 'swal2-html-container-custom',
+            confirmButton: 'swal2-confirm-custom'
+          },
+          buttonsStyling: true,
+          backdrop: true,
+          allowOutsideClick: true,
+          allowEscapeKey: true
         });
       }
     }
@@ -1845,22 +1928,88 @@ export class PortalNoticiasComponent implements OnInit, OnDestroy {
     // Verificar si tiene plan Pro
     if (!this.planService.isPro()) {
       Swal.fire({
-        title: 'Plan Pro requerido',
+        title: '<div style="font-size: 28px; font-weight: 700; color: #1e293b; margin-bottom: 8px;">✨ Plan Pro Requerido</div>',
         html: `
-< p class= "mb-4" > Para guardar noticias en favoritos necesitas el Plan Pro.</p>
-< p class= "text-sm text-gray-600 mb-4" > El Plan Pro incluye: </p>
-< ul class= "text-left list-disc list-inside mb-4 space-y-1 text-sm" >
-<li>Guardar en favoritos </li>
-< li > Historial de lectura </li>
-< li > Filtros avanzados </li>
-</ul>
-  `,
-        icon: 'info',
+<div style="text-align: center; padding: 20px 0;">
+  <div style="background: linear-gradient(135deg, #475569 0%, #1e40af 100%); width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 25px rgba(71, 85, 105, 0.3);">
+    <svg style="width: 45px; height: 45px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
+    </svg>
+  </div>
+  <p style="font-size: 18px; color: #475569; margin-bottom: 24px; font-weight: 500;">
+    Para <span style="color: #1e40af; font-weight: 600;">guardar noticias en favoritos</span> necesitas el Plan Pro
+  </p>
+  <div style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border-radius: 16px; padding: 24px; margin: 20px 0; border: 2px solid #e2e8f0;">
+    <p style="font-size: 16px; font-weight: 600; color: #1e293b; margin-bottom: 16px; text-align: left;">
+      🎯 El Plan Pro incluye:
+    </p>
+    <div style="text-align: left;">
+      <div style="display: flex; align-items: center; margin-bottom: 12px; padding: 10px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+        <div style="background: linear-gradient(135deg, #475569 0%, #334155 100%); width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 12px; flex-shrink: 0;">
+          <svg style="width: 18px; height: 18px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
+          </svg>
+        </div>
+        <span style="font-size: 15px; color: #334155; font-weight: 500;">Filtros avanzados (categoría, fuente, autores)</span>
+      </div>
+      <div style="display: flex; align-items: center; margin-bottom: 12px; padding: 10px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+        <div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 12px; flex-shrink: 0;">
+          <svg style="width: 18px; height: 18px; color: white;" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
+          </svg>
+        </div>
+        <span style="font-size: 15px; color: #334155; font-weight: 500;">Guardar en favoritos</span>
+      </div>
+      <div style="display: flex; align-items: center; margin-bottom: 12px; padding: 10px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+        <div style="background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%); width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 12px; flex-shrink: 0;">
+          <svg style="width: 18px; height: 18px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+        </div>
+        <span style="font-size: 15px; color: #334155; font-weight: 500;">Historial de lectura</span>
+      </div>
+      <div style="display: flex; align-items: center; margin-bottom: 12px; padding: 10px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+        <div style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 12px; flex-shrink: 0;">
+          <svg style="width: 18px; height: 18px; color: white;" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+          </svg>
+        </div>
+        <span style="font-size: 15px; color: #334155; font-weight: 500;">Lo más popular</span>
+      </div>
+      <div style="display: flex; align-items: center; padding: 10px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+        <div style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 12px; flex-shrink: 0;">
+          <svg style="width: 18px; height: 18px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+          </svg>
+        </div>
+        <span style="font-size: 15px; color: #334155; font-weight: 500;">Autores destacados</span>
+      </div>
+    </div>
+  </div>
+  <p style="font-size: 14px; color: #64748b; margin-top: 20px; font-style: italic;">
+    💡 Desbloquea todas las funciones premium
+  </p>
+</div>
+        `,
+        icon: undefined,
         showCancelButton: true,
-        confirmButtonText: 'Ver planes',
+        confirmButtonText: '<div style="display: flex; align-items: center; gap: 8px;"><svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg> Ver Planes</div>',
         cancelButtonText: 'Cancelar',
-        confirmButtonColor: '#9333ea',
-        cancelButtonColor: '#6b7280'
+        confirmButtonColor: '#1e40af',
+        cancelButtonColor: '#64748b',
+        width: '600px',
+        padding: '2rem',
+        customClass: {
+          popup: 'swal2-popup-custom',
+          title: 'swal2-title-custom',
+          htmlContainer: 'swal2-html-container-custom',
+          confirmButton: 'swal2-confirm-custom',
+          cancelButton: 'swal2-cancel-custom'
+        },
+        buttonsStyling: true,
+        backdrop: true,
+        allowOutsideClick: true,
+        allowEscapeKey: true
       }).then((result) => {
         if (result.isConfirmed) {
           this.router.navigate(['/planes']);
@@ -2016,6 +2165,22 @@ export class PortalNoticiasComponent implements OnInit, OnDestroy {
 
   irAPlanes() {
     this.router.navigate(['/planes']);
+  }
+
+  irAFavoritos() {
+    if (!this.planService.isPro()) {
+      this.mostrarMensajePlanPro('acceder a favoritos');
+    } else {
+      this.router.navigate(['/favoritos']);
+    }
+  }
+
+  irAHistorial() {
+    if (!this.planService.isPro()) {
+      this.mostrarMensajePlanPro('acceder al historial');
+    } else {
+      this.router.navigate(['/historial']);
+    }
   }
 
   verificarYAccederPopular(link: string, event: Event) {
